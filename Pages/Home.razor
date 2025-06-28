@@ -19,7 +19,7 @@
     
     <div class="input-section">
         <label>How many items do you want?</label>
-        <input type="number" @bind="targetQuantity" min="1" max="1000000" placeholder="e.g., 1000 iron ingots" disabled="@(!isCustomFarm)" />
+        <input type="number" @bind="targetQuantity" min="1" max="1000000" placeholder="e.g., 1000 iron ingots" />
     </div>
     
     <div class="input-section">
@@ -104,8 +104,8 @@
         }
         else
         {
-            // Set default values for selected farm
-            targetQuantity = 1000; // Default target
+            // Set default drop rate for selected farm, but leave target quantity empty for user input
+            targetQuantity = 0; // User must input this
             dropsPer5Minutes = defaultFarmRates[selectedFarm];
             isCustomFarm = false;
             showResult = false;

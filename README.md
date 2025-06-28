@@ -4,7 +4,7 @@ A simple web application built with Blazor to help Minecraft players calculate A
 
 ## Features
 
-- **Farm Type Selection**: Choose from default farm types (Iron, Gold, Crop, Mob) or create custom farms
+- **Farm Type Selection**: Choose from default farm types (e.g. Iron, Gold, Crop, Mob) or create custom farms
 - **Drop Rate Input**: Enter drops per 5 minutes for your farm
 - **Target Quantity**: Specify how many items you want to collect
 - **AFK Time Calculation**: Automatically calculates required AFK duration with session breakdown
@@ -46,23 +46,3 @@ The calculator shows:
 - **C#**: Backend logic
 - **HTML/CSS**: Frontend styling
 - **Bootstrap**: Responsive design components
-
-## Getting Started
-
-### Prerequisites
-- .NET 9.0 SDK or later
-
-### Installation
-1. Clone the repository
-2. Navigate to the project directory
-3. Run `dotnet restore`
-4. Run `dotnet run`
-5. Open your browser to the displayed URL
-
-## License
-
-This project is open source and available under the MIT License.
-
-## Contributing
-
-Feel free to submit issues and enhancement requests! 
