@@ -1,0 +1,156 @@
+﻿@page "/"
+
+<PageTitle>Minecraft AFK Calculator</PageTitle>
+
+<h1>Minecraft AFK Calculator</h1>
+
+<div class="afk-calc-container">
+    <div class="input-section">
+        <label>Farm Type:</label>
+        <select @bind="SelectedFarm">
+            <option value="">Select a farm type...</option>
+            <option value="Iron Farm">Iron Farm (Default)</option>
+            <option value="Gold Farm">Gold Farm (Default)</option>
+            <option value="Crop Farm">Crop Farm (Default)</option>
+            <option value="Mob Farm">Mob Farm (Default)</option>
+            <option value="Custom">Custom Farm</option>
+        </select>
+    </div>
+    
+    <div class="input-section">
+        <label>How many items do you want?</label>
+        <input type="number" @bind="targetQuantity" min="1" max="1000000" placeholder="e.g., 1000 iron ingots" disabled="@(!isCustomFarm)" />
+    </div>
+    
+    <div class="input-section">
+        <label>Drops per 5 minutes:</label>
+        <input type="number" @bind="dropsPer5Minutes" min="1" max="10000" placeholder="Enter drops per 5 minutes" disabled="@(!isCustomFarm)" />
+    </div>
+    
+    <button @onclick="CalculateAfkTime" class="calculate-btn">Calculate AFK Time</button>
+    
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="error">@errorMessage</div>
+    }
+    
+    @if (showResult)
+    {
+        <div class="result-section">
+            <h3>Results</h3>
+            <div>Items per hour: <b>@dropsPerHour</b></div>
+            <div>Required AFK duration: <b>@hours h @minutes m</b></div>
+            <div>Session breakdown: <b>@sessions x @sessionLength min sessions</b></div>
+            <div class="progress-container">
+                <label>Progress to @targetQuantity items:</label>
+                <progress value="@progressValue" max="@targetQuantity"></progress>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    // Farm types with default values
+    private Dictionary<string, int> defaultFarmRates = new()
+    {
+        { "Iron Farm", 120 },    // 120 drops per 5 minutes
+        { "Gold Farm", 80 },     // 80 drops per 5 minutes  
+        { "Crop Farm", 200 },    // 200 drops per 5 minutes
+        { "Mob Farm", 150 }      // 150 drops per 5 minutes
+    };
+    
+    private string selectedFarm = "";
+    private int targetQuantity = 0;
+    private int dropsPer5Minutes = 0;
+    private int sessionLength = 60; // default 60 minutes per session
+    private string errorMessage = string.Empty;
+    private bool showResult = false;
+    private bool isCustomFarm = false;
+    private int dropsPerHour = 0;
+    private int hours = 0;
+    private int minutes = 0;
+    private int sessions = 0;
+    private int progressValue = 0;
+
+    private string SelectedFarm
+    {
+        get => selectedFarm;
+        set
+        {
+            selectedFarm = value;
+            OnFarmTypeChanged();
+        }
+    }
+
+    private void OnFarmTypeChanged()
+    {
+        if (string.IsNullOrEmpty(selectedFarm))
+        {
+            // Reset everything if no farm selected
+            targetQuantity = 0;
+            dropsPer5Minutes = 0;
+            isCustomFarm = false;
+            showResult = false;
+            return;
+        }
+
+        if (selectedFarm == "Custom")
+        {
+            // Clear inputs for custom farm
+            targetQuantity = 0;
+            dropsPer5Minutes = 0;
+            isCustomFarm = true;
+            showResult = false;
+        }
+        else
+        {
+            // Set default values for selected farm
+            targetQuantity = 1000; // Default target
+            dropsPer5Minutes = defaultFarmRates[selectedFarm];
+            isCustomFarm = false;
+            showResult = false;
+        }
+    }
+
+    private void CalculateAfkTime()
+    {
+        errorMessage = string.Empty;
+        showResult = false;
+        
+        if (string.IsNullOrEmpty(selectedFarm))
+        {
+            errorMessage = "Please select a farm type.";
+            return;
+        }
+        
+        if (targetQuantity <= 0)
+        {
+            errorMessage = "Please enter a valid number of items you want.";
+            return;
+        }
+        
+        if (dropsPer5Minutes <= 0)
+        {
+            errorMessage = "Please enter a valid number of drops per 5 minutes.";
+            return;
+        }
+        
+        // Calculate drops per hour (12 * drops per 5 minutes)
+        dropsPerHour = dropsPer5Minutes * 12;
+        
+        // Calculate total time needed with automatic rounding up
+        double totalMinutes = (double)targetQuantity / dropsPerHour * 60;
+        totalMinutes = Math.Ceiling(totalMinutes); // Always round up
+        
+        hours = (int)(totalMinutes / 60);
+        minutes = (int)(totalMinutes % 60);
+        
+        // Calculate number of sessions needed
+        sessions = (int)Math.Ceiling(totalMinutes / sessionLength);
+        
+        // Set progress value (for progress bar)
+        progressValue = 0;
+        
+        showResult = true;
+    }
+}

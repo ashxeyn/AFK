@@ -1,0 +1,26 @@
+﻿@inherits LayoutComponentBase
+<button class="theme-toggle" @onclick="ToggleTheme">@themeText</button>
+<div class="page @(isDark ? "dark-theme" : "light-theme")">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code {
+    private string themeText = "Dark Mode";
+    private bool isDark = false;
+    private void ToggleTheme()
+    {
+        isDark = !isDark;
+        themeText = isDark ? "Light Mode" : "Dark Mode";
+    }
+}
