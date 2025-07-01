@@ -1,76 +1,249 @@
-﻿@page "/"
+@page "/"
+@inject IJSRuntime JSRuntime
 
-<PageTitle>Minecraft AFK Calculator</PageTitle>
+<PageTitle>Minecraft AFK Calculator - Professional Farm Analytics</PageTitle>
 
-<h1>Minecraft AFK Calculator</h1>
+<!-- Top Navigation -->
+<nav class="top-nav">
+    <div class="nav-container">
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="/" class="nav-link active">
+                    🏠 Home
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/counter" class="nav-link">
+                    🔢 Counter
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    ❓ Help
+                </a>
+            </li>
+        </ul>
+        
+        <!-- Dark Mode Toggle -->
+        <button @onclick="ToggleDarkMode" class="dark-mode-toggle" title="Toggle Dark Mode">
+            @if (isDarkMode)
+            {
+                <span>☀️</span>
+            }
+            else
+            {
+                <span>🌙</span>
+            }
+        </button>
+    </div>
+</nav>
 
-<div class="afk-calc-container">
-    <div class="input-section">
-        <label>Farm Type:</label>
-        <select @bind="SelectedFarm">
-            <option value="">Select a farm type...</option>
-            <option value="Iron Farm">Iron Farm (Default)</option>
-            <option value="Gold Farm">Gold Farm (Default)</option>
-            <option value="Crop Farm">Crop Farm (Default)</option>
-            <option value="Mob Farm">Mob Farm (Default)</option>
-            <option value="Custom">Custom Farm</option>
-        </select>
+<!-- Main Content -->
+<div class="main-container">
+    <!-- Hero Section -->
+    <div class="hero-section fade-in">
+        <h1 class="hero-title">Minecraft AFK Calculator</h1>
+        <p class="hero-subtitle">Professional Farm Analytics & Optimization</p>
+        <p class="hero-description">Calculate precise AFK times, optimize your farming efficiency, and maximize your resource production with our advanced analytics platform.</p>
     </div>
-    
-    <div class="input-section">
-        <label>How many items do you want?</label>
-        <input type="number" @bind="targetQuantity" min="1" max="1000000" placeholder="e.g., 1000 iron ingots" />
-    </div>
-    
-    <div class="input-section">
-        <label>Drops per 5 minutes:</label>
-        <input type="number" @bind="dropsPer5Minutes" min="1" max="10000" placeholder="Enter drops per 5 minutes" disabled="@(!isCustomFarm)" />
-    </div>
-    
-    <button @onclick="CalculateAfkTime" class="calculate-btn">Calculate AFK Time</button>
-    
-    @if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <div class="error">@errorMessage</div>
-    }
-    
-    @if (showResult)
-    {
-        <div class="result-section">
-            <h3>Results</h3>
-            <div>Items per hour: <b>@dropsPerHour</b></div>
-            <div>Required AFK duration: <b>@hours h @minutes m</b></div>
-            <div>Session breakdown: <b>@sessions x @sessionLength min sessions</b></div>
-            <div class="progress-container">
-                <label>Progress to @targetQuantity items:</label>
-                <progress value="@progressValue" max="@targetQuantity"></progress>
+
+    <!-- Calculator Form -->
+    <div class="slide-up">
+        <div class="card">
+            <h2 class="card-title">🏭 Farm Configuration</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Farm Type</label>
+                <select @bind="SelectedFarm" class="form-select">
+                    <option value="">Select your farm type...</option>
+                    <option value="Iron Farm">🔩 Iron Farm (120 items/5min)</option>
+                    <option value="Gold Farm">🥇 Gold Farm (80 items/5min)</option>
+                    <option value="Crop Farm">🌾 Crop Farm (200 items/5min)</option>
+                    <option value="Mob Farm">👾 Mob Farm (150 items/5min)</option>
+                    <option value="Custom">🔧 Custom Farm</option>
+                </select>
+                @if (!string.IsNullOrEmpty(selectedFarm) && farmTypes.ContainsKey(selectedFarm))
+                {
+                    <div class="helper-text">@farmTypes[selectedFarm].Description</div>
+                }
             </div>
+            
+            <div class="form-group">
+                <label class="form-label">Target Items</label>
+                <input type="number" @bind="targetQuantity" min="1" max="1000000" 
+                       placeholder="Enter target quantity (e.g., 1000)" 
+                       class="form-input" />
+                @if (targetQuantity > 0)
+                {
+                    <div class="helper-text">📦 Target: @targetQuantity.ToString("N0") items</div>
+                }
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Production Rate</label>
+                <input type="number" @bind="dropsPer5Minutes" min="1" max="10000" 
+                       placeholder="Items produced per 5 minutes" 
+                       disabled="@(!isCustomFarm)"
+                       class="form-input" />
+                @if (!isCustomFarm && dropsPer5Minutes > 0)
+                {
+                    <div class="helper-text">📊 Production rate: @dropsPerHour.ToString("N0") items/hour</div>
+                }
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Session Length</label>
+                <input type="range" @bind="sessionLength" min="15" max="180" step="15" class="form-slider" />
+                <div class="slider-display">
+                    <span class="helper-text">15 min</span>
+                    <span class="slider-value">@sessionLength minutes</span>
+                    <span class="helper-text">180 min</span>
+                </div>
+            </div>
+            
+            <button @onclick="CalculateAfkTime" class="btn btn-primary btn-full" disabled="@isCalculating">
+                @if (isCalculating)
+                {
+                    <span class="pulse">⚙️ Calculating...</span>
+                }
+                else
+                {
+                    <span>🧮 Calculate AFK Time</span>
+                }
+            </button>
+            
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-error">
+                    ❌ @errorMessage
+                </div>
+            }
         </div>
-    }
+
+        @if (showResult)
+        {
+            <!-- Results Section -->
+            <div class="card slide-up">
+                <h2 class="card-title">� Analysis Results</h2>
+                
+                <div class="results-grid">
+                    <div class="result-card">
+                        <img src="https://minecraft.wiki/images/7/7e/Iron_Ingot_JE3_BE2.png" alt="Production Rate" class="result-icon">
+                        <div class="result-label">Production Rate</div>
+                        <div class="result-value">@dropsPerHour.ToString("N0")/hr</div>
+                    </div>
+                    <div class="result-card">
+                        <img src="https://minecraft.wiki/images/8/8a/Clock_JE3_BE3.gif" alt="AFK Time" class="result-icon">
+                        <div class="result-label">AFK Time Required</div>
+                        <div class="result-value">@hours h @minutes m</div>
+                    </div>
+                    <div class="result-card">
+                        <img src="https://minecraft.wiki/images/f/fc/Book_JE2_BE2.png" alt="Sessions" class="result-icon">
+                        <div class="result-label">Recommended Sessions</div>
+                        <div class="result-value">@sessions × @sessionLength min</div>
+                    </div>
+                    <div class="result-card">
+                        <img src="@GetEfficiencyIcon()" alt="Efficiency" class="result-icon">
+                        <div class="result-label">Efficiency Rating</div>
+                        <div class="result-value">@GetEfficiencyRating()</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Tracking -->
+            <div class="card">
+                <h2 class="card-title">🎯 Progress Tracking</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">Progress to @targetQuantity.ToString("N0") items</label>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: @(Math.Max(1, ((double)progressValue / targetQuantity) * 100))%"></div>
+                    </div>
+                    <div class="progress-text">@progressValue.ToString("N0") / @targetQuantity.ToString("N0") items</div>
+                </div>
+                
+                <div class="timer-controls">
+                    @if (!timerRunning && !timerPaused)
+                    {
+                        <button @onclick="StartTimer" class="btn btn-success btn-full">
+                            <span>▶️ Start AFK Timer</span>
+                        </button>
+                    }
+                    else if (timerRunning)
+                    {
+                        <div class="timer-display">
+                            <div class="timer-time pulse">⏱️ @FormatTime(timeRemaining)</div>
+                            <div class="timer-buttons">
+                                <button @onclick="PauseTimer" class="btn btn-warning">
+                                    <span>⏸️ Pause</span>
+                                </button>
+                                <button @onclick="StopTimer" class="btn btn-danger">
+                                    <span>⏹️ Stop</span>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                    else if (timerPaused)
+                    {
+                        <div class="timer-display">
+                            <div class="timer-time">⏸️ Paused - @FormatTime(timeRemaining)</div>
+                            <div class="timer-buttons">
+                                <button @onclick="ResumeTimer" class="btn btn-success">
+                                    <span>▶️ Resume</span>
+                                </button>
+                                <button @onclick="StopTimer" class="btn btn-danger">
+                                    <span>⏹️ Stop</span>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
 </div>
 
 @code {
-    // Farm types with default values
-    private Dictionary<string, int> defaultFarmRates = new()
+    // Enhanced farm types with more detailed information
+    private Dictionary<string, FarmInfo> farmTypes = new()
     {
-        { "Iron Farm", 120 },    // 120 drops per 5 minutes
-        { "Gold Farm", 80 },     // 80 drops per 5 minutes  
-        { "Crop Farm", 200 },    // 200 drops per 5 minutes
-        { "Mob Farm", 150 }      // 150 drops per 5 minutes
+        { "Iron Farm", new FarmInfo { Rate = 120, Icon = "🔩", Color = "iron", Description = "Iron golem farm" } },
+        { "Gold Farm", new FarmInfo { Rate = 80, Icon = "🥇", Color = "gold", Description = "Zombified piglin farm" } },
+        { "Crop Farm", new FarmInfo { Rate = 200, Icon = "🌾", Color = "crop", Description = "Automated crop harvester" } },
+        { "Mob Farm", new FarmInfo { Rate = 150, Icon = "👾", Color = "mob", Description = "General mob spawner" } }
     };
+    
+    private class FarmInfo
+    {
+        public int Rate { get; set; }
+        public string Icon { get; set; } = "";
+        public string Color { get; set; } = "";
+        public string Description { get; set; } = "";
+    }
     
     private string selectedFarm = "";
     private int targetQuantity = 0;
     private int dropsPer5Minutes = 0;
-    private int sessionLength = 60; // default 60 minutes per session
+    private int sessionLength = 60;
     private string errorMessage = string.Empty;
     private bool showResult = false;
     private bool isCustomFarm = false;
+    private bool isCalculating = false;
     private int dropsPerHour = 0;
     private int hours = 0;
     private int minutes = 0;
     private int sessions = 0;
     private int progressValue = 0;
+    
+    // Timer functionality
+    private bool timerRunning = false;
+    private bool timerPaused = false;
+    private int timeRemaining = 0;
+    private int totalTime = 0; // Store original time for restart functionality
+    private Timer? countdownTimer;
+    
+    // Dark mode functionality
+    private bool isDarkMode = false;
 
     private string SelectedFarm
     {
@@ -86,7 +259,6 @@
     {
         if (string.IsNullOrEmpty(selectedFarm))
         {
-            // Reset everything if no farm selected
             targetQuantity = 0;
             dropsPer5Minutes = 0;
             isCustomFarm = false;
@@ -96,61 +268,194 @@
 
         if (selectedFarm == "Custom")
         {
-            // Clear inputs for custom farm
             targetQuantity = 0;
             dropsPer5Minutes = 0;
             isCustomFarm = true;
             showResult = false;
         }
-        else
+        else if (farmTypes.ContainsKey(selectedFarm))
         {
-            // Set default drop rate for selected farm, but leave target quantity empty for user input
-            targetQuantity = 0; // User must input this
-            dropsPer5Minutes = defaultFarmRates[selectedFarm];
+            targetQuantity = 0;
+            dropsPer5Minutes = farmTypes[selectedFarm].Rate;
             isCustomFarm = false;
             showResult = false;
+            dropsPerHour = dropsPer5Minutes * 12; // Update immediately for display
         }
     }
 
-    private void CalculateAfkTime()
+    private async Task CalculateAfkTime()
     {
         errorMessage = string.Empty;
         showResult = false;
+        isCalculating = true;
+        
+        // Simulate calculation delay for better UX
+        await Task.Delay(500);
         
         if (string.IsNullOrEmpty(selectedFarm))
         {
             errorMessage = "Please select a farm type.";
+            isCalculating = false;
             return;
         }
         
         if (targetQuantity <= 0)
         {
             errorMessage = "Please enter a valid number of items you want.";
+            isCalculating = false;
             return;
         }
         
         if (dropsPer5Minutes <= 0)
         {
             errorMessage = "Please enter a valid number of drops per 5 minutes.";
+            isCalculating = false;
             return;
         }
         
-        // Calculate drops per hour (12 * drops per 5 minutes)
         dropsPerHour = dropsPer5Minutes * 12;
         
-        // Calculate total time needed with automatic rounding up
         double totalMinutes = (double)targetQuantity / dropsPerHour * 60;
-        totalMinutes = Math.Ceiling(totalMinutes); // Always round up
+        totalMinutes = Math.Ceiling(totalMinutes);
         
         hours = (int)(totalMinutes / 60);
         minutes = (int)(totalMinutes % 60);
-        
-        // Calculate number of sessions needed
         sessions = (int)Math.Ceiling(totalMinutes / sessionLength);
-        
-        // Set progress value (for progress bar)
         progressValue = 0;
         
+        isCalculating = false;
         showResult = true;
+    }
+    
+    private string GetFarmThemeClass()
+    {
+        // No longer needed for modern UI
+        return "";
+    }
+    
+    private string GetEfficiencyRating()
+    {
+        if (dropsPerHour == 0) return "N/A";
+        
+        return dropsPerHour switch
+        {
+            >= 2000 => "⭐⭐⭐ Excellent",
+            >= 1500 => "⭐⭐ Good",
+            >= 1000 => "⭐ Average",
+            _ => "⚠️ Poor"
+        };
+    }
+    
+    private string GetEfficiencyIcon()
+    {
+        return dropsPerHour switch
+        {
+            >= 2000 => "https://minecraft.wiki/images/f/fd/Emerald_JE3_BE3.png",
+            >= 1500 => "https://minecraft.wiki/images/5/5e/Gold_Ingot_JE4_BE2.png",
+            >= 1000 => "https://minecraft.wiki/images/7/7e/Iron_Ingot_JE3_BE2.png",
+            _ => "https://minecraft.wiki/images/8/8c/Redstone_Dust_JE2_BE2.png"
+        };
+    }
+    
+    private string GetEfficiencyClass()
+    {
+        // No longer needed for modern UI
+        return "";
+    }
+    
+    private void StartTimer()
+    {
+        if (timerRunning || timerPaused) return;
+        
+        timeRemaining = hours * 3600 + minutes * 60; // Convert to seconds
+        totalTime = timeRemaining; // Store for restart
+        timerRunning = true;
+        timerPaused = false;
+        
+        countdownTimer = new Timer(UpdateTimer, null, 0, 1000);
+    }
+    
+    private void PauseTimer()
+    {
+        if (!timerRunning) return;
+        
+        timerRunning = false;
+        timerPaused = true;
+        countdownTimer?.Dispose();
+        countdownTimer = null;
+    }
+    
+    private void ResumeTimer()
+    {
+        if (!timerPaused) return;
+        
+        timerPaused = false;
+        timerRunning = true;
+        
+        countdownTimer = new Timer(UpdateTimer, null, 0, 1000);
+    }
+    
+    private void StopTimer()
+    {
+        timerRunning = false;
+        timerPaused = false;
+        countdownTimer?.Dispose();
+        countdownTimer = null;
+        timeRemaining = totalTime; // Reset to original time
+    }
+    
+    private void UpdateTimer(object? state)
+    {
+        if (timeRemaining > 0)
+        {
+            timeRemaining--;
+            InvokeAsync(StateHasChanged);
+        }
+        else
+        {
+            timerRunning = false;
+            countdownTimer?.Dispose();
+            InvokeAsync(StateHasChanged);
+        }
+    }
+    
+    private string FormatTime(int totalSeconds)
+    {
+        var h = totalSeconds / 3600;
+        var m = (totalSeconds % 3600) / 60;
+        var s = totalSeconds % 60;
+        return $"{h:D2}:{m:D2}:{s:D2}";
+    }
+    
+    private async Task ToggleDarkMode()
+    {
+        isDarkMode = !isDarkMode;
+        
+        // Apply dark mode to the body element
+        if (isDarkMode)
+        {
+            await JSRuntime.InvokeVoidAsync("document.body.classList.add", "dark-mode");
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("document.body.classList.remove", "dark-mode");
+        }
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Set initial dark mode state if needed
+            if (isDarkMode)
+            {
+                await JSRuntime.InvokeVoidAsync("document.body.classList.add", "dark-mode");
+            }
+        }
+    }
+    
+    public void Dispose()
+    {
+        countdownTimer?.Dispose();
     }
 }

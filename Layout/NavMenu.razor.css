@@ -1,3 +1,6 @@
+/* Legacy NavMenu styles - disabled to prevent conflicts with new layout */
+
+/*
 .navbar-toggler {
     background-color: rgba(255, 255, 255, 0.1);
 }
@@ -10,6 +13,9 @@
 .navbar-brand {
     font-size: 1.1rem;
 }
+*/
+
+/* All legacy styles commented out to prevent conflicts */
 
 .bi {
     display: inline-block;

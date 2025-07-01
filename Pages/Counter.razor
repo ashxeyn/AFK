@@ -1,18 +1,116 @@
 ﻿@page "/counter"
+@inject IJSRuntime JSRuntime
 
-<PageTitle>Counter</PageTitle>
+<PageTitle>Counter - Minecraft AFK Calculator</PageTitle>
 
-<h1>Counter</h1>
+<!-- Top Navigation -->
+<nav class="top-nav">
+    <div class="nav-container">
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="/" class="nav-link">
+                    🏠 Home
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/counter" class="nav-link active">
+                    🔢 Counter
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    ❓ Help
+                </a>
+            </li>
+        </ul>
+        
+        <!-- Dark Mode Toggle -->
+        <button @onclick="ToggleDarkMode" class="dark-mode-toggle" title="Toggle Dark Mode">
+            @if (isDarkMode)
+            {
+                <span>☀️</span>
+            }
+            else
+            {
+                <span>🌙</span>
+            }
+        </button>
+    </div>
+</nav>
 
-<p role="status">Current count: @currentCount</p>
+<!-- Main Content -->
+<div class="main-container">
+    <!-- Hero Section -->
+    <div class="hero-section fade-in">
+        <h1 class="hero-title">Counter</h1>
+        <p class="hero-subtitle">Simple Click Counter</p>
+        <p class="hero-description">A basic counter to test the navigation and UI components.</p>
+    </div>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+    <!-- Counter Card -->
+    <div class="slide-up">
+        <div class="card">
+            <h2 class="card-title">🔢 Click Counter</h2>
+            
+            <div class="text-center">
+                <div class="result-card" style="margin: 2rem auto; max-width: 300px;">
+                    <div class="result-label">Current Count</div>
+                    <div class="result-value" style="font-size: 3rem; color: #3b82f6;">@currentCount</div>
+                </div>
+                
+                <button class="btn btn-primary btn-full" @onclick="IncrementCount">
+                    ➕ Click Me!
+                </button>
+                
+                @if (currentCount > 0)
+                {
+                    <button class="btn btn-danger btn-full" @onclick="ResetCount" style="margin-top: 1rem;">
+                        🔄 Reset Counter
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
     private int currentCount = 0;
+    private bool isDarkMode = false;
 
     private void IncrementCount()
     {
         currentCount++;
+    }
+    
+    private void ResetCount()
+    {
+        currentCount = 0;
+    }
+    
+    private async Task ToggleDarkMode()
+    {
+        isDarkMode = !isDarkMode;
+        
+        // Apply dark mode to the body element
+        if (isDarkMode)
+        {
+            await JSRuntime.InvokeVoidAsync("document.body.classList.add", "dark-mode");
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("document.body.classList.remove", "dark-mode");
+        }
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Set initial dark mode state if needed
+            if (isDarkMode)
+            {
+                await JSRuntime.InvokeVoidAsync("document.body.classList.add", "dark-mode");
+            }
+        }
     }
 }
