@@ -1,123 +1,125 @@
 @page "/"
 @inject IJSRuntime JSRuntime
 
-<PageTitle>Minecraft AFK Calculator - Professional Farm Analytics</PageTitle>
+<PageTitle>Minecraft AFK Calculator</PageTitle>
 
-<!-- Top Navigation -->
-<nav class="top-nav">
-    <div class="nav-container">
-        <ul class="nav-menu">
-            <li class="nav-item">
-                <a href="/" class="nav-link active">
-                    🏠 Home
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="/counter" class="nav-link">
-                    🔢 Counter
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link">
-                    ❓ Help
-                </a>
-            </li>
-        </ul>
-        
-        <!-- Dark Mode Toggle -->
-        <button @onclick="ToggleDarkMode" class="dark-mode-toggle" title="Toggle Dark Mode">
-            @if (isDarkMode)
-            {
-                <span>☀️</span>
-            }
-            else
-            {
-                <span>🌙</span>
-            }
-        </button>
-    </div>
+<!-- Navigation using Minecraft CSS Framework -->
+<nav class="navbar">
+    <div class="navbar-brand">AFK Calculator</div>
+    <ul class="navbar-nav">
+        <li><a href="/">🏠 Home</a></li>
+        <li><a href="/counter">🔢 Counter</a></li>
+        <li><a href="#">❓ Help</a></li>
+    </ul>
 </nav>
 
-<!-- Main Content -->
-<div class="main-container">
+<!-- Main Content using Minecraft CSS Framework -->
+<div class="container">
     <!-- Hero Section -->
-    <div class="hero-section fade-in">
-        <h1 class="hero-title">Minecraft AFK Calculator</h1>
-        <p class="hero-subtitle">Professional Farm Analytics & Optimization</p>
-        <p class="hero-description">Calculate precise AFK times, optimize your farming efficiency, and maximize your resource production with our advanced analytics platform.</p>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h1>Minecraft AFK Calculator</h1>
+                </div>
+                <div class="card-body">
+                    <h3>Official-Style Farm Planning Tool</h3>
+                    <p>Plan your AFK sessions with precision. Calculate optimal farming times, track your progress, and maximize your resource collection efficiency using our Minecraft-inspired interface.</p>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Calculator Form -->
-    <div class="slide-up">
-        <div class="card">
-            <h2 class="card-title">🏭 Farm Configuration</h2>
-            
-            <div class="form-group">
-                <label class="form-label">Farm Type</label>
-                <select @bind="SelectedFarm" class="form-select">
-                    <option value="">Select your farm type...</option>
-                    <option value="Iron Farm">🔩 Iron Farm (120 items/5min)</option>
-                    <option value="Gold Farm">🥇 Gold Farm (80 items/5min)</option>
-                    <option value="Crop Farm">🌾 Crop Farm (200 items/5min)</option>
-                    <option value="Mob Farm">👾 Mob Farm (150 items/5min)</option>
-                    <option value="Custom">🔧 Custom Farm</option>
-                </select>
-                @if (!string.IsNullOrEmpty(selectedFarm) && farmTypes.ContainsKey(selectedFarm))
-                {
-                    <div class="helper-text">@farmTypes[selectedFarm].Description</div>
-                }
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Target Items</label>
-                <input type="number" @bind="targetQuantity" min="1" max="1000000" 
-                       placeholder="Enter target quantity (e.g., 1000)" 
-                       class="form-input" />
-                @if (targetQuantity > 0)
-                {
-                    <div class="helper-text">📦 Target: @targetQuantity.ToString("N0") items</div>
-                }
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Production Rate</label>
-                <input type="number" @bind="dropsPer5Minutes" min="1" max="10000" 
-                       placeholder="Items produced per 5 minutes" 
-                       disabled="@(!isCustomFarm)"
-                       class="form-input" />
-                @if (!isCustomFarm && dropsPer5Minutes > 0)
-                {
-                    <div class="helper-text">📊 Production rate: @dropsPerHour.ToString("N0") items/hour</div>
-                }
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Session Length</label>
-                <input type="range" @bind="sessionLength" min="15" max="180" step="15" class="form-slider" />
-                <div class="slider-display">
-                    <span class="helper-text">15 min</span>
-                    <span class="slider-value">@sessionLength minutes</span>
-                    <span class="helper-text">180 min</span>
+    <!-- Grid Layout -->
+    <div class="row">
+        <div class="col-12">
+            <!-- News-style Card inspired by Minecraft.net -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>🎯 Get the Latest AFK Farming Tips!</h2>
+                </div>
+                <div class="card-body">
+                    Calculate your AFK sessions with precision. Select your farm type, set your targets, and let our calculator guide you to optimal farming efficiency. 
+                    Track your progress in real-time and never miss your collection goals again!
                 </div>
             </div>
-            
-            <button @onclick="CalculateAfkTime" class="btn btn-primary btn-full" disabled="@isCalculating">
-                @if (isCalculating)
-                {
-                    <span class="pulse">⚙️ Calculating...</span>
-                }
-                else
-                {
-                    <span>🧮 Calculate AFK Time</span>
-                }
-            </button>
-            
-            @if (!string.IsNullOrEmpty(errorMessage))
-            {
-                <div class="alert alert-error">
-                    ❌ @errorMessage
+        </div>
+        
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h2>🏭 Farm Configuration</h2>
                 </div>
-            }
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="form-label">Farm Type</label>
+                        <select @bind="SelectedFarm" class="form-input">
+                            <option value="">Select your farm type...</option>
+                            <option value="Iron Farm">🔩 Iron Farm (120 items/5min)</option>
+                            <option value="Gold Farm">🥇 Gold Farm (80 items/5min)</option>
+                            <option value="Crop Farm">🌾 Crop Farm (200 items/5min)</option>
+                            <option value="Mob Farm">👾 Mob Farm (150 items/5min)</option>
+                            <option value="Custom">🔧 Custom Farm</option>
+                        </select>
+                        @if (!string.IsNullOrEmpty(selectedFarm) && farmTypes.ContainsKey(selectedFarm))
+                        {
+                            <div class="text-secondary">@farmTypes[selectedFarm].Description</div>
+                        }
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Target Items</label>
+                        <input type="number" @bind="targetQuantity" min="1" max="1000000" 
+                               placeholder="Enter target quantity (e.g., 1000)" 
+                               class="form-input" />
+                        @if (targetQuantity > 0)
+                        {
+                            <div class="text-secondary">📦 Target: @targetQuantity.ToString("N0") items</div>
+                        }
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Production Rate</label>
+                        <input type="number" @bind="dropsPer5Minutes" min="1" max="10000" 
+                               placeholder="Items produced per 5 minutes" 
+                               disabled="@(!isCustomFarm)"
+                               class="form-input" />
+                        @if (!isCustomFarm && dropsPer5Minutes > 0)
+                        {
+                            <div class="text-secondary">📊 Production rate: @dropsPerHour.ToString("N0") items/hour</div>
+                        }
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Session Length</label>
+                        <input type="range" @bind="sessionLength" min="15" max="180" step="15" class="form-input" />
+                        <div class="text-center">
+                            <span class="text-secondary">15 min</span>
+                            <span class="font-weight-bold">@sessionLength minutes</span>
+                            <span class="text-secondary">180 min</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button @onclick="CalculateAfkTime" class="button button-primary" disabled="@isCalculating">
+                        @if (isCalculating)
+                        {
+                            <span>⚙️ Calculating...</span>
+                        }
+                        else
+                        {
+                            <span>🧮 Calculate AFK Time</span>
+                        }
+                    </button>
+                    
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="text-red">
+                            ❌ @errorMessage
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
 
         @if (showResult)
@@ -165,7 +167,7 @@
                 <div class="timer-controls">
                     @if (!timerRunning && !timerPaused)
                     {
-                        <button @onclick="StartTimer" class="btn btn-success btn-full">
+                        <button @onclick="StartTimer" class="button button-primary">
                             <span>▶️ Start AFK Timer</span>
                         </button>
                     }
@@ -174,10 +176,10 @@
                         <div class="timer-display">
                             <div class="timer-time pulse">⏱️ @FormatTime(timeRemaining)</div>
                             <div class="timer-buttons">
-                                <button @onclick="PauseTimer" class="btn btn-warning">
+                                <button @onclick="PauseTimer" class="button button-secondary">
                                     <span>⏸️ Pause</span>
                                 </button>
-                                <button @onclick="StopTimer" class="btn btn-danger">
+                                <button @onclick="StopTimer" class="button button-tertiary">
                                     <span>⏹️ Stop</span>
                                 </button>
                             </div>
@@ -188,10 +190,10 @@
                         <div class="timer-display">
                             <div class="timer-time">⏸️ Paused - @FormatTime(timeRemaining)</div>
                             <div class="timer-buttons">
-                                <button @onclick="ResumeTimer" class="btn btn-success">
+                                <button @onclick="ResumeTimer" class="button button-primary">
                                     <span>▶️ Resume</span>
                                 </button>
-                                <button @onclick="StopTimer" class="btn btn-danger">
+                                <button @onclick="StopTimer" class="button button-tertiary">
                                     <span>⏹️ Stop</span>
                                 </button>
                             </div>

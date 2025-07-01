@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft CSS Test</title>
+    <link rel="stylesheet" href="css/minecraft-css-framework-v-1.0.0.css" />
+    <link rel="stylesheet" href="css/custom-minecraft.css" />
+</head>
+<body class="bg-primary text-secondary">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-brand">AFK Calculator</div>
+        <ul class="navbar-nav">
+            <li><a href="#">🏠 Home</a></li>
+            <li><a href="#">🔢 Counter</a></li>
+            <li><a href="#">❓ Help</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <h1 class="hero-title">Minecraft AFK Calculator</h1>
+            <p class="hero-subtitle">Official-Style Farm Planning Tool</p>
+            <p class="hero-description">Plan your AFK sessions with precision and maximize your efficiency.</p>
+        </div>
+
+        <!-- Card Component -->
+        <div class="row">
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>🏭 Farm Configuration</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="form-label">Farm Type</label>
+                            <select class="form-input">
+                                <option>Select farm type...</option>
+                                <option>Iron Farm</option>
+                                <option>Gold Farm</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Target Items</label>
+                            <input type="number" class="form-input" placeholder="Enter target quantity">
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="button button-primary">Calculate AFK Time</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>📊 Results</h2>
+                    </div>
+                    <div class="card-body">
+                        <p>Your AFK calculation results will appear here.</p>
+                        <button class="button button-secondary">Secondary Button</button>
+                        <button class="button button-tertiary">Tertiary Button</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
