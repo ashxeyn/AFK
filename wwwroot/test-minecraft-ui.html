@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft CSS Test</title>
+    <link rel="stylesheet" href="css/minecraft-css-framework-v-1.0.0.css" />
+    <link rel="stylesheet" href="css/custom-minecraft.css" />
+</head>
+<body class="bg-primary text-secondary">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-brand">AFK Calculator</div>
+        <ul class="navbar-nav">
+            <li><a href="#">🏠 Home</a></li>
+            <li><a href="#">🔢 Counter</a></li>
+            <li><a href="#">❓ Help</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <h1 class="hero-title">Minecraft AFK Calculator</h1>
+            <p class="hero-subtitle">Calculate the perfect AFK time for your farms</p>
+            <p class="hero-description">Plan your Minecraft farming sessions with precision and maximize your resource collection efficiency.</p>
+        </div>
+
+        <!-- Card Component -->
+        <div class="grid">
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>🏭 Farm Configuration</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="form-label">Farm Type</label>
+                            <select class="form-input">
+                                <option>Select your farm type...</option>
+                                <option>🔩 Iron Farm (120 items/5min)</option>
+                                <option>🥇 Gold Farm (80 items/5min)</option>
+                                <option>🌾 Crop Farm (200 items/5min)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Target Items</label>
+                            <input type="number" class="form-input" placeholder="Enter target quantity" />
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="button button-primary">📊 Calculate AFK Time</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>⏰ AFK Timer & Progress</h2>
+                    </div>
+                    <div class="card-body text-center">
+                        <!-- Timer Display -->
+                        <div class="result-display">
+                            <div class="result-label">Time Remaining</div>
+                            <div class="result-value timer-display" style="color: white;">02:45:30</div>
+                            <div class="result-label" style="font-size: 0.9rem; margin-top: 0.5rem;">
+                                Total AFK Time: 3 hours 15 minutes
+                            </div>
+                        </div>
+                        
+                        <!-- Timer Controls -->
+                        <div class="button-group">
+                            <button class="button button-primary">▶️ Start Timer</button>
+                            <button class="button button-secondary">⏸️ Pause</button>
+                            <button class="button button-tertiary">⏹️ Stop</button>
+                        </div>
+                        
+                        <!-- Progress Section -->
+                        <div class="progress-section">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 25%"></div>
+                            </div>
+                            <div class="progress-text">25% Complete - Keep AFK-ing!</div>
+                        </div>
+                        
+                        <!-- Additional Info -->
+                        <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 4px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: left;">
+                                <div>
+                                    <strong>� Target:</strong><br>
+                                    <span style="color: var(--accent-color);">1,000 Iron Ingots</span>
+                                </div>
+                                <div>
+                                    <strong>⚡ Rate:</strong><br>
+                                    <span style="color: var(--accent-color);">120 items/5min</span>
+                                </div>
+                                <div>
+                                    <strong>📊 Collected:</strong><br>
+                                    <span style="color: white;">250 items</span>
+                                </div>
+                                <div>
+                                    <strong>� Started:</strong><br>
+                                    <span style="color: var(--accent-color);">2:30 PM</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

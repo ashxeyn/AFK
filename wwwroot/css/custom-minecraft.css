@@ -30,11 +30,30 @@
 
 /* Timer styles */
 .timer-display {
-    font-size: 2rem;
-    font-weight: bold;
-    text-align: center;
-    margin: 1rem 0;
-    color: var(--accent-color);
+    font-family: 'MinecraftTen', monospace !important;
+    font-size: 2.5rem !important;
+    color: white !important;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    letter-spacing: 0.1em;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1rem;
+    border-radius: 4px;
+    border: 2px solid var(--secondary-color);
+}
+
+.timer-display.warning {
+    color: var(--warning-color) !important;
+    animation: pulse 2s infinite;
+}
+
+.timer-display.danger {
+    color: var(--error-color) !important;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
 }
 
 .timer-controls {
@@ -69,4 +88,159 @@
     font-size: 1.2rem;
     font-weight: bold;
     color: var(--text-color);
+}
+
+/* Counter Page Styles */
+.result-display {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid var(--secondary-color);
+    border-radius: 4px;
+    margin: 2rem 0;
+    padding: 2rem;
+    text-align: center;
+}
+
+.result-icon {
+    height: 64px;
+    image-rendering: pixelated;
+    margin-bottom: 1rem;
+    width: 64px;
+}
+
+.result-label {
+    color: var(--accent-color);
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.result-value {
+    color: var(--text-color);
+    font-family: 'MinecraftTen', sans-serif;
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.button-group {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.button-group .button {
+    min-width: 200px;
+}
+
+.progress-section {
+    border-top: 2px solid var(--secondary-color);
+    margin-top: 2rem;
+    padding-top: 2rem;
+}
+
+.progress-bar {
+    background: var(--primary-color);
+    border: 2px solid var(--secondary-color);
+    border-radius: 4px;
+    height: 20px;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+    width: 100%;
+}
+
+.progress-fill {
+    background: linear-gradient(90deg, var(--btn-primary-inner-color), var(--btn-primary-inner-hover-color));
+    border-radius: 2px;
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    color: var(--accent-color);
+    font-size: 1rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Enhanced Progress Bar */
+.progress-section .progress-bar {
+    height: 24px;
+    background: var(--primary-color);
+    border: 3px solid var(--secondary-color);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-section .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, 
+        var(--btn-primary-inner-color) 0%, 
+        var(--btn-primary-inner-hover-color) 50%, 
+        var(--btn-primary-inner-color) 100%);
+    transition: width 0.3s ease;
+    position: relative;
+}
+
+.progress-section .progress-fill::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent);
+    animation: shine 2s infinite;
+}
+
+@keyframes shine {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Info Grid Styling */
+.timer-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    text-align: left;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    border: 1px solid var(--secondary-color);
+}
+
+.timer-info-item strong {
+    color: var(--accent-color);
+    font-family: 'MinecraftTen', sans-serif;
+    font-size: 0.9rem;
+}
+
+.timer-info-value {
+    color: var(--text-color);
+    font-size: 0.9rem;
+    margin-top: 0.2rem;
+}
+
+/* Responsive adjustments for Counter */
+@media (max-width: 768px) {
+    .result-display {
+        margin: 1rem 0;
+        padding: 1rem;
+    }
+    
+    .result-value {
+        font-size: 2.5rem;
+    }
+    
+    .button-group .button {
+        min-width: 180px;
+    }
 }

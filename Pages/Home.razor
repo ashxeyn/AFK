@@ -1,15 +1,15 @@
 @page "/"
 @inject IJSRuntime JSRuntime
 
-<PageTitle>Minecraft AFK Calculator</PageTitle>
+<PageTitle>MC AFK Tracker</PageTitle>
 
 <!-- Navigation using Minecraft CSS Framework -->
 <nav class="navbar">
-    <div class="navbar-brand">AFK Calculator</div>
+    <div class="navbar-brand">MC AFK Tracker</div>
     <ul class="navbar-nav">
         <li><a href="/">🏠 Home</a></li>
         <li><a href="/counter">🔢 Counter</a></li>
-        <li><a href="#">❓ Help</a></li>
+        <li><a href="/help">❓ Help</a></li>
     </ul>
 </nav>
 
@@ -18,190 +18,316 @@
     <!-- Hero Section -->
     <div class="row">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h1>Minecraft AFK Calculator</h1>
-                </div>
-                <div class="card-body">
-                    <h3>Official-Style Farm Planning Tool</h3>
-                    <p>Plan your AFK sessions with precision. Calculate optimal farming times, track your progress, and maximize your resource collection efficiency using our Minecraft-inspired interface.</p>
-                </div>
+            <div class="hero-section">
+                <h1 class="hero-title">MC AFK Tracker</h1>
+                <p class="hero-subtitle">Plan your AFK farming sessions with precision</p>
             </div>
         </div>
     </div>
 
-    <!-- Grid Layout -->
-    <div class="row">
+    <!-- Main Grid Layout - 2x2 Grid -->
+    <div class="row" style="margin-bottom: 2rem;">
         <div class="col-12">
-            <!-- News-style Card inspired by Minecraft.net -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>🎯 Get the Latest AFK Farming Tips!</h2>
-                </div>
-                <div class="card-body">
-                    Calculate your AFK sessions with precision. Select your farm type, set your targets, and let our calculator guide you to optimal farming efficiency. 
-                    Track your progress in real-time and never miss your collection goals again!
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h2>🏭 Farm Configuration</h2>
-                </div>
-                <div class="card-body">
-                    <div class="form-group">
-                        <label class="form-label">Farm Type</label>
-                        <select @bind="SelectedFarm" class="form-input">
-                            <option value="">Select your farm type...</option>
-                            <option value="Iron Farm">🔩 Iron Farm (120 items/5min)</option>
-                            <option value="Gold Farm">🥇 Gold Farm (80 items/5min)</option>
-                            <option value="Crop Farm">🌾 Crop Farm (200 items/5min)</option>
-                            <option value="Mob Farm">👾 Mob Farm (150 items/5min)</option>
-                            <option value="Custom">🔧 Custom Farm</option>
-                        </select>
-                        @if (!string.IsNullOrEmpty(selectedFarm) && farmTypes.ContainsKey(selectedFarm))
-                        {
-                            <div class="text-secondary">@farmTypes[selectedFarm].Description</div>
-                        }
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Target Items</label>
-                        <input type="number" @bind="targetQuantity" min="1" max="1000000" 
-                               placeholder="Enter target quantity (e.g., 1000)" 
-                               class="form-input" />
-                        @if (targetQuantity > 0)
-                        {
-                            <div class="text-secondary">📦 Target: @targetQuantity.ToString("N0") items</div>
-                        }
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Production Rate</label>
-                        <input type="number" @bind="dropsPer5Minutes" min="1" max="10000" 
-                               placeholder="Items produced per 5 minutes" 
-                               disabled="@(!isCustomFarm)"
-                               class="form-input" />
-                        @if (!isCustomFarm && dropsPer5Minutes > 0)
-                        {
-                            <div class="text-secondary">📊 Production rate: @dropsPerHour.ToString("N0") items/hour</div>
-                        }
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Session Length</label>
-                        <input type="range" @bind="sessionLength" min="15" max="180" step="15" class="form-input" />
-                        <div class="text-center">
-                            <span class="text-secondary">15 min</span>
-                            <span class="font-weight-bold">@sessionLength minutes</span>
-                            <span class="text-secondary">180 min</span>
+            <div class="grid" style="gap: 2rem;">
+                <!-- Top Left - Farm Configuration (Always visible) -->
+                <div class="col-6">
+                    <div class="card" style="margin-bottom: 2rem;">
+                        <div class="card-header">
+                            <h2>🏭 Farm Configuration</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label class="form-label">Farm Type</label>
+                                <select @bind="SelectedFarm" class="form-input">
+                                    <option value="">Select your farm type...</option>
+                                    <!-- Basic Farms -->
+                                    <option value="Iron Farm">🔩 Iron Farm (120 items/5min)</option>
+                                    <option value="Gold Farm">🥇 Gold Farm (80 items/5min)</option>
+                                    <option value="Crop Farm">🌾 Crop Farm (200 items/5min)</option>
+                                    <option value="Mob Farm">👾 Mob Farm (150 items/5min)</option>
+                                    
+                                    <!-- Hostile Mob Farms -->
+                                    <option value="Skeleton Farm">💀 Skeleton Farm (180 items/5min)</option>
+                                    <option value="Spider Farm">🕷️ Spider Farm (160 items/5min)</option>
+                                    <option value="Zombie Farm">🧟 Zombie Farm (140 items/5min)</option>
+                                    <option value="Creeper Farm">💥 Creeper Farm (90 items/5min)</option>
+                                    <option value="Enderman Farm">👤 Enderman Farm (300 items/5min)</option>
+                                    <option value="Blaze Farm">🔥 Blaze Farm (250 items/5min)</option>
+                                    <option value="Guardian Farm">🐟 Guardian Farm (400 items/5min)</option>
+                                    <option value="Witch Farm">🧙 Witch Farm (100 items/5min)</option>
+                                    <option value="Slime Farm">🟢 Slime Farm (110 items/5min)</option>
+                                    
+                                    <!-- Passive Mob Farms -->
+                                    <option value="Cow Farm">🐄 Cow Farm (100 items/5min)</option>
+                                    <option value="Pig Farm">🐷 Pig Farm (95 items/5min)</option>
+                                    <option value="Chicken Farm">🐔 Chicken Farm (110 items/5min)</option>
+                                    <option value="Sheep Farm">� Sheep Farm (85 items/5min)</option>
+                                    
+                                    <!-- Fish Farms -->
+                                    <option value="Cod Farm">🦆 Cod Farm (130 items/5min)</option>
+                                    <option value="Salmon Farm">🐟 Salmon Farm (125 items/5min)</option>
+                                    <option value="Tropical Fish Farm">🐠 Tropical Fish Farm (75 items/5min)</option>
+                                    <option value="Pufferfish Farm">🐡 Pufferfish Farm (70 items/5min)</option>
+                                    
+                                    <!-- Plant Farms -->
+                                    <option value="Tree Farm">🌳 Tree Farm (300 logs/5min)</option>
+                                    <option value="Kelp Farm">� Kelp Farm (250 items/5min)</option>
+                                    <option value="Mushroom Farm">🍄 Mushroom Farm (180 items/5min)</option>
+                                    <option value="Bamboo Farm">🎋 Bamboo Farm (300 items/5min)</option>
+                                    <option value="Cactus Farm">🌵 Cactus Farm (150 items/5min)</option>
+                                    
+                                    <!-- Specialized Farms -->
+                                    <option value="Honey Farm">🍯 Honey Farm (45 items/5min)</option>
+                                    <option value="Wax Farm">🕯️ Wax Farm (40 items/5min)</option>
+                                    <option value="Villager Farm">👨‍🌾 Villager Trading (50 trades/5min)</option>
+                                    
+                                    <!-- Custom -->
+                                    <option value="Custom">🔧 Custom Farm</option>
+                                </select>
+                                @if (!string.IsNullOrEmpty(selectedFarm) && farmTypes.ContainsKey(selectedFarm))
+                                {
+                                    <div class="text-secondary">@farmTypes[selectedFarm].Description</div>
+                                }
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Target Items</label>
+                                <input type="number" @bind="targetQuantity" min="1" max="1000000" 
+                                       placeholder="Enter target quantity (e.g., 1000)" 
+                                       class="form-input" />
+                                @if (targetQuantity > 0)
+                                {
+                                    <div class="text-secondary">📦 Target: @targetQuantity.ToString("N0") items</div>
+                                }
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Production Rate</label>
+                                <input type="number" @bind="dropsPer5Minutes" min="1" max="10000" 
+                                       placeholder="Items produced per 5 minutes" 
+                                       disabled="@(!isCustomFarm)"
+                                       class="form-input" />
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button @onclick="CalculateAfkTime" class="button button-primary" disabled="@isCalculating">
+                                @if (isCalculating)
+                                {
+                                    <span>⚙️ Calculating...</span>
+                                }
+                                else
+                                {
+                                    <span>🧮 Calculate AFK Time</span>
+                                }
+                            </button>
+                            
+                            @if (!string.IsNullOrEmpty(errorMessage))
+                            {
+                                <div class="text-red">
+                                    ❌ @errorMessage
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
-                <div class="card-footer">
-                    <button @onclick="CalculateAfkTime" class="button button-primary" disabled="@isCalculating">
-                        @if (isCalculating)
-                        {
-                            <span>⚙️ Calculating...</span>
-                        }
-                        else
-                        {
-                            <span>🧮 Calculate AFK Time</span>
-                        }
-                    </button>
-                    
-                    @if (!string.IsNullOrEmpty(errorMessage))
-                    {
-                        <div class="text-red">
-                            ❌ @errorMessage
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-
-        @if (showResult)
-        {
-            <!-- Results Section -->
-            <div class="card slide-up">
-                <h2 class="card-title">� Analysis Results</h2>
                 
-                <div class="results-grid">
-                    <div class="result-card">
-                        <img src="https://minecraft.wiki/images/7/7e/Iron_Ingot_JE3_BE2.png" alt="Production Rate" class="result-icon">
-                        <div class="result-label">Production Rate</div>
-                        <div class="result-value">@dropsPerHour.ToString("N0")/hr</div>
-                    </div>
-                    <div class="result-card">
-                        <img src="https://minecraft.wiki/images/8/8a/Clock_JE3_BE3.gif" alt="AFK Time" class="result-icon">
-                        <div class="result-label">AFK Time Required</div>
-                        <div class="result-value">@hours h @minutes m</div>
-                    </div>
-                    <div class="result-card">
-                        <img src="https://minecraft.wiki/images/f/fc/Book_JE2_BE2.png" alt="Sessions" class="result-icon">
-                        <div class="result-label">Recommended Sessions</div>
-                        <div class="result-value">@sessions × @sessionLength min</div>
-                    </div>
-                    <div class="result-card">
-                        <img src="@GetEfficiencyIcon()" alt="Efficiency" class="result-icon">
-                        <div class="result-label">Efficiency Rating</div>
-                        <div class="result-value">@GetEfficiencyRating()</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Progress Tracking -->
-            <div class="card">
-                <h2 class="card-title">🎯 Progress Tracking</h2>
-                
-                <div class="form-group">
-                    <label class="form-label">Progress to @targetQuantity.ToString("N0") items</label>
-                    <div class="progress-container">
-                        <div class="progress-bar" style="width: @(Math.Max(1, ((double)progressValue / targetQuantity) * 100))%"></div>
-                    </div>
-                    <div class="progress-text">@progressValue.ToString("N0") / @targetQuantity.ToString("N0") items</div>
-                </div>
-                
-                <div class="timer-controls">
-                    @if (!timerRunning && !timerPaused)
+                <!-- Top Right - Timer (Only visible after calculation) OR Welcome (Before calculation) -->
+                <div class="col-6">
+                    @if (!showResult)
                     {
-                        <button @onclick="StartTimer" class="button button-primary">
-                            <span>▶️ Start AFK Timer</span>
-                        </button>
-                    }
-                    else if (timerRunning)
-                    {
-                        <div class="timer-display">
-                            <div class="timer-time pulse">⏱️ @FormatTime(timeRemaining)</div>
-                            <div class="timer-buttons">
-                                <button @onclick="PauseTimer" class="button button-secondary">
-                                    <span>⏸️ Pause</span>
-                                </button>
-                                <button @onclick="StopTimer" class="button button-tertiary">
-                                    <span>⏹️ Stop</span>
-                                </button>
+                        <!-- Welcome Image/Info -->
+                        <div class="card" style="margin-bottom: 2rem;">
+                            <div class="card-body text-center">
+                                <div style="margin-bottom: 2rem; margin-top: 1rem;">
+                                    <img src="Diamond_Pickaxe_JE3_BE3.webp" alt="Diamond Pickaxe" style="width: 118px; height: 118px; image-rendering: pixelated;" />
+                                </div>
+                                <h3>Welcome to MC AFK Tracker</h3>
+                                <p style="margin-top: 1.5rem; margin-bottom: 2rem;">Configure your farm settings on the left, then click "Calculate AFK Time" to get started with your farming session planning.</p>
+                            </div>
+                            <div class="card-footer">
+                                <div style="text-align: center; color: var(--text-muted); font-size: 0.9rem;">
+                                    Ready to optimize your AFK farming sessions!
+                                </div>
                             </div>
                         </div>
                     }
-                    else if (timerPaused)
+                    else
                     {
-                        <div class="timer-display">
-                            <div class="timer-time">⏸️ Paused - @FormatTime(timeRemaining)</div>
-                            <div class="timer-buttons">
-                                <button @onclick="ResumeTimer" class="button button-primary">
-                                    <span>▶️ Resume</span>
-                                </button>
-                                <button @onclick="StopTimer" class="button button-tertiary">
-                                    <span>⏹️ Stop</span>
-                                </button>
+                        <!-- AFK Timer & Progress -->
+                        <div class="card" style="margin-bottom: 2rem;">
+                            <div class="card-header">
+                                <h2>⏰ AFK Timer & Progress</h2>
+                            </div>
+                            <div class="card-body text-center">
+                                <!-- Timer Display -->
+                                <div class="result-display">
+                                    @if (!timerRunning && !timerPaused)
+                                    {
+                                        <div class="result-label">Ready to Start</div>
+                                        <div class="result-value timer-display" style="color: white;">@FormatTime(hours * 3600 + minutes * 60)</div>
+                                        <div class="result-label" style="font-size: 0.9rem; margin-top: 0.5rem;">
+                                            Total AFK Time: @hours h @minutes m
+                                        </div>
+                                    }
+                                    else if (timerRunning)
+                                    {
+                                        <div class="result-label">Time Remaining</div>
+                                        <div class="result-value timer-display pulse" style="color: white;">@FormatTime(timeRemaining)</div>
+                                        <div class="result-label" style="font-size: 0.9rem; margin-top: 0.5rem;">
+                                            Running - @Math.Round(((double)(totalTime - timeRemaining) / totalTime) * 100, 1)% Complete
+                                        </div>
+                                    }
+                                    else if (timerPaused)
+                                    {
+                                        <div class="result-label">Timer Paused</div>
+                                        <div class="result-value timer-display" style="color: white;">@FormatTime(timeRemaining)</div>
+                                        <div class="result-label" style="font-size: 0.9rem; margin-top: 0.5rem;">
+                                            Paused at @Math.Round(((double)(totalTime - timeRemaining) / totalTime) * 100, 1)%
+                                        </div>
+                                    }
+                                </div>
+                                
+                                <!-- Timer Controls -->
+                                <div class="button-group">
+                                    @if (!timerRunning && !timerPaused)
+                                    {
+                                        <button @onclick="StartTimer" class="button button-primary">▶️ Start Timer</button>
+                                    }
+                                    else if (timerRunning)
+                                    {
+                                        <button @onclick="PauseTimer" class="button button-secondary">⏸️ Pause</button>
+                                        <button @onclick="StopTimer" class="button button-tertiary">⏹️ Stop</button>
+                                    }
+                                    else if (timerPaused)
+                                    {
+                                        <button @onclick="ResumeTimer" class="button button-primary">▶️ Resume</button>
+                                        <button @onclick="StopTimer" class="button button-tertiary">⏹️ Stop</button>
+                                    }
+                                </div>
+                                
+                                <!-- Progress Section -->
+                                @if (timerRunning || timerPaused)
+                                {
+                                    <div class="progress-section">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: @(Math.Max(1, ((double)(totalTime - timeRemaining) / totalTime) * 100))%"></div>
+                                        </div>
+                                        <div class="progress-text">@Math.Round(((double)(totalTime - timeRemaining) / totalTime) * 100, 1)% Complete - Keep AFK-ing!</div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="progress-section">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 0%"></div>
+                                        </div>
+                                        <div class="progress-text">Ready to start AFK session</div>
+                                    </div>
+                                }
+                                
+                                <!-- Additional Timer Info -->
+                                <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 4px;">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: left;">
+                                        <div>
+                                            <strong>📦 Expected:</strong><br>
+                                            <span style="color: var(--accent-color);">@targetQuantity.ToString("N0") items</span>
+                                        </div>
+                                        <div>
+                                            <strong>⚡ Rate:</strong><br>
+                                            <span style="color: var(--accent-color);">@dropsPerHour.ToString("N0")/hr</span>
+                                        </div>
+                                        <div>
+                                            <strong>📊 Status:</strong><br>
+                                            <span style="color: white;">
+                                                @if (timerRunning) { <text>🟢 Active</text> }
+                                                else if (timerPaused) { <text>🟡 Paused</text> }
+                                                else { <text>⚪ Ready</text> }
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <strong>🕒 Started:</strong><br>
+                                            <span style="color: var(--accent-color);">
+                                                @if (timerRunning || timerPaused) 
+                                                { 
+                                                    @DateTime.Now.AddSeconds(-(totalTime - timeRemaining)).ToString("HH:mm")
+                                                }
+                                                else 
+                                                { 
+                                                    <text>--:--</text> 
+                                                }
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     }
                 </div>
+                
+                <!-- Bottom Left - Analysis Results (Only visible after calculation) -->
+                @if (showResult)
+                {
+                    <div class="col-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>📊 Analysis Results</h2>
+                            </div>
+                            <div class="card-body">
+                                <div class="result-display">
+                                    <div class="result-label">AFK Time Required</div>
+                                    <div class="result-value">@hours h @minutes m</div>
+                                </div>
+                                
+                                <div class="result-display" style="margin-top: 1rem;">
+                                    <div class="result-label">Efficiency Rating</div>
+                                    <div class="result-value">@GetEfficiencyRating()</div>
+                                </div>
+                                
+                                <!-- Farm Details -->
+                                <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 4px;">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: left;">
+                                        <div>
+                                            <strong>🏭 Farm Type:</strong><br>
+                                            <span style="color: var(--accent-color);">@selectedFarm</span>
+                                        </div>
+                                        <div>
+                                            <strong>📦 Target:</strong><br>
+                                            <span style="color: var(--accent-color);">@targetQuantity.ToString("N0") items</span>
+                                        </div>
+                                        <div>
+                                            <strong>⚡ Base Rate:</strong><br>
+                                            <span style="color: var(--accent-color);">@dropsPer5Minutes/5min</span>
+                                        </div>
+                                        <div>
+                                            <strong>⏱️ Total Time:</strong><br>
+                                            <span style="color: var(--accent-color);">@hours h @minutes m</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bottom Right - Placeholder for Image/Video (Only visible after calculation) -->
+                    <div class="col-6">
+                        <div class="card" style="margin-top: 1rem;">
+                            <div class="card-body text-center" style="padding: 2rem;">
+                                <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;">🎥</div>
+                                <h4 style="opacity: 0.5;">Media Space</h4>
+                                <p style="opacity: 0.4;">Perfect spot for tutorial videos, farm images, or additional content</p>
+                                <div style="margin-top: 1.5rem; opacity: 0.3;">
+                                    <div style="border: 2px dashed var(--secondary-color); padding: 2rem; border-radius: 8px;">
+                                        <div>📸 Image Placeholder</div>
+                                        <div style="margin-top: 0.5rem;">or</div>
+                                        <div>🎬 Video Embed</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
-        }
+        </div>
     </div>
 </div>
 
@@ -209,10 +335,46 @@
     // Enhanced farm types with more detailed information
     private Dictionary<string, FarmInfo> farmTypes = new()
     {
-        { "Iron Farm", new FarmInfo { Rate = 120, Icon = "🔩", Color = "iron", Description = "Iron golem farm" } },
-        { "Gold Farm", new FarmInfo { Rate = 80, Icon = "🥇", Color = "gold", Description = "Zombified piglin farm" } },
-        { "Crop Farm", new FarmInfo { Rate = 200, Icon = "🌾", Color = "crop", Description = "Automated crop harvester" } },
-        { "Mob Farm", new FarmInfo { Rate = 150, Icon = "👾", Color = "mob", Description = "General mob spawner" } }
+        // Basic Farms
+        { "Iron Farm", new FarmInfo { Rate = 120, Icon = "🔩", Color = "iron", Description = "Iron golem farm producing iron ingots" } },
+        { "Gold Farm", new FarmInfo { Rate = 80, Icon = "🥇", Color = "gold", Description = "Zombified piglin farm in the Nether" } },
+        { "Crop Farm", new FarmInfo { Rate = 200, Icon = "🌾", Color = "crop", Description = "Automated crop harvester for wheat, carrots, potatoes" } },
+        { "Mob Farm", new FarmInfo { Rate = 150, Icon = "👾", Color = "mob", Description = "General mob spawner farm" } },
+        
+        // Hostile Mob Farms
+        { "Skeleton Farm", new FarmInfo { Rate = 180, Icon = "💀", Color = "skeleton", Description = "Skeleton spawner farm for bones and arrows" } },
+        { "Spider Farm", new FarmInfo { Rate = 160, Icon = "🕷️", Color = "spider", Description = "Spider spawner farm for string and spider eyes" } },
+        { "Zombie Farm", new FarmInfo { Rate = 140, Icon = "🧟", Color = "zombie", Description = "Zombie spawner farm for rotten flesh and iron" } },
+        { "Creeper Farm", new FarmInfo { Rate = 90, Icon = "💥", Color = "creeper", Description = "Creeper spawner farm for gunpowder" } },
+        { "Enderman Farm", new FarmInfo { Rate = 300, Icon = "👤", Color = "enderman", Description = "End-based enderman farm for ender pearls" } },
+        { "Blaze Farm", new FarmInfo { Rate = 250, Icon = "🔥", Color = "blaze", Description = "Nether fortress blaze farm for blaze rods" } },
+        { "Guardian Farm", new FarmInfo { Rate = 400, Icon = "🐟", Color = "guardian", Description = "Ocean monument guardian farm" } },
+        { "Witch Farm", new FarmInfo { Rate = 100, Icon = "🧙", Color = "witch", Description = "Witch hut farm for redstone and glowstone" } },
+        { "Slime Farm", new FarmInfo { Rate = 110, Icon = "🟢", Color = "slime", Description = "Slime chunk or swamp farm for slimeballs" } },
+        
+        // Passive Mob Farms
+        { "Cow Farm", new FarmInfo { Rate = 100, Icon = "🐄", Color = "cow", Description = "Cow breeding farm for leather and beef" } },
+        { "Pig Farm", new FarmInfo { Rate = 95, Icon = "🐷", Color = "pig", Description = "Pig breeding farm for porkchops" } },
+        { "Chicken Farm", new FarmInfo { Rate = 110, Icon = "🐔", Color = "chicken", Description = "Chicken breeding farm for feathers and meat" } },
+        { "Sheep Farm", new FarmInfo { Rate = 85, Icon = "🐑", Color = "sheep", Description = "Sheep farm for wool and mutton" } },
+        
+        // Fish Farms
+        { "Cod Farm", new FarmInfo { Rate = 130, Icon = "🦆", Color = "cod", Description = "AFK fish farm for cod" } },
+        { "Salmon Farm", new FarmInfo { Rate = 125, Icon = "🐟", Color = "salmon", Description = "AFK fish farm for salmon" } },
+        { "Tropical Fish Farm", new FarmInfo { Rate = 75, Icon = "🐠", Color = "tropical", Description = "AFK fish farm for tropical fish" } },
+        { "Pufferfish Farm", new FarmInfo { Rate = 70, Icon = "🐡", Color = "puffer", Description = "AFK fish farm for pufferfish" } },
+        
+        // Plant Farms
+        { "Tree Farm", new FarmInfo { Rate = 300, Icon = "🌳", Color = "tree", Description = "TNT tree farm for logs and saplings" } },
+        { "Kelp Farm", new FarmInfo { Rate = 250, Icon = "🌱", Color = "kelp", Description = "Ocean kelp farm with flying machines" } },
+        { "Mushroom Farm", new FarmInfo { Rate = 180, Icon = "🍄", Color = "mushroom", Description = "Huge mushroom farm in dark areas" } },
+        { "Bamboo Farm", new FarmInfo { Rate = 300, Icon = "🎋", Color = "bamboo", Description = "Bamboo farm with observer blocks" } },
+        { "Cactus Farm", new FarmInfo { Rate = 150, Icon = "🌵", Color = "cactus", Description = "Desert cactus farm with water collection" } },
+        
+        // Specialized Farms
+        { "Honey Farm", new FarmInfo { Rate = 45, Icon = "🍯", Color = "honey", Description = "Bee farm for honey bottles" } },
+        { "Wax Farm", new FarmInfo { Rate = 40, Icon = "🕯️", Color = "wax", Description = "Bee farm for honeycomb and wax" } },
+        { "Villager Farm", new FarmInfo { Rate = 50, Icon = "👨‍🌾", Color = "villager", Description = "Automated villager trading system" } }
     };
     
     private class FarmInfo
@@ -226,7 +388,6 @@
     private string selectedFarm = "";
     private int targetQuantity = 0;
     private int dropsPer5Minutes = 0;
-    private int sessionLength = 60;
     private string errorMessage = string.Empty;
     private bool showResult = false;
     private bool isCustomFarm = false;
@@ -234,8 +395,6 @@
     private int dropsPerHour = 0;
     private int hours = 0;
     private int minutes = 0;
-    private int sessions = 0;
-    private int progressValue = 0;
     
     // Timer functionality
     private bool timerRunning = false;
@@ -322,8 +481,6 @@
         
         hours = (int)(totalMinutes / 60);
         minutes = (int)(totalMinutes % 60);
-        sessions = (int)Math.Ceiling(totalMinutes / sessionLength);
-        progressValue = 0;
         
         isCalculating = false;
         showResult = true;
