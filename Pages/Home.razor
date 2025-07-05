@@ -5,7 +5,6 @@
 
 <!-- Navigation using Minecraft CSS Framework -->
 <nav class="navbar">
-    <div class="navbar-brand">MC AFK Tracker</div>
     <ul class="navbar-nav">
         <li><a href="/">🏠 Home</a></li>
         <li><a href="/counter">🔢 Counter</a></li>
@@ -33,12 +32,12 @@
                 <div class="col-6">
                     <div class="card" style="margin-bottom: 2rem;">
                         <div class="card-header">
-                            <h2>🏭 Farm Configuration</h2>
+                            <h2><img src="exppo.webp" alt="Farm" style="width: 40px; height: 40px; vertical-align: middle; margin-right: 12px;" /> Farm Configuration</h2>
                         </div>
                         <div class="card-body">
                             <div class="form-group">
                                 <label class="form-label">Farm Type</label>
-                                <select @bind="SelectedFarm" class="form-input">
+                                <select value="@selectedFarm" @onfocus="PlayButtonSound" @onchange="OnFarmSelectionChange" class="form-input">
                                     <option value="">Select your farm type...</option>
                                     <!-- Basic Farms -->
                                     <option value="Iron Farm">🔩 Iron Farm (120 items/5min)</option>
@@ -95,13 +94,9 @@
                                 <input type="number" @bind="targetQuantity" min="1" max="1000000" 
                                        placeholder="Enter target quantity (e.g., 1000)" 
                                        class="form-input" />
-                                @if (targetQuantity > 0)
-                                {
-                                    <div class="text-secondary">📦 Target: @targetQuantity.ToString("N0") items</div>
-                                }
                             </div>
                             
-                            <div class="form-group">
+                            <div class="form-group" style="margin-top: 2rem;">
                                 <label class="form-label">Production Rate</label>
                                 <input type="number" @bind="dropsPer5Minutes" min="1" max="10000" 
                                        placeholder="Items produced per 5 minutes" 
@@ -110,21 +105,47 @@
                             </div>
                         </div>
                         <div class="card-footer">
-                            <button @onclick="CalculateAfkTime" class="button button-primary" disabled="@isCalculating">
+                            <button @onclick="CalculateAfkTimeWithSound" class="button button-primary" disabled="@isCalculating">
                                 @if (isCalculating)
                                 {
                                     <span>⚙️ Calculating...</span>
                                 }
                                 else
                                 {
-                                    <span>🧮 Calculate AFK Time</span>
+                                    <span>Calculate Now</span>
                                 }
                             </button>
+
                             
                             @if (!string.IsNullOrEmpty(errorMessage))
                             {
                                 <div class="text-red">
                                     ❌ @errorMessage
+                                </div>
+                            }
+                            
+                            @if (showResult)
+                            {
+                                <!-- Farm Analysis Results -->
+                                <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 4px;">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: left;">
+                                        <div>
+                                            <strong style="color: white;">🏭 Farm Type:</strong><br>
+                                            <span style="color: white;">@selectedFarm</span>
+                                        </div>
+                                        <div>
+                                            <strong style="color: white;">📦 Target:</strong><br>
+                                            <span style="color: white;">@targetQuantity.ToString("N0") items</span>
+                                        </div>
+                                        <div>
+                                            <strong style="color: white;">⭐ Efficiency Rating:</strong><br>
+                                            <span style="color: white;">@GetEfficiencyRating()</span>
+                                        </div>
+                                        <div>
+                                            <strong style="color: white;">⏱️ Total Time:</strong><br>
+                                            <span style="color: white;">@hours h @minutes m</span>
+                                        </div>
+                                    </div>
                                 </div>
                             }
                         </div>
@@ -154,17 +175,27 @@
                     else
                     {
                         <!-- AFK Timer & Progress -->
-                        <div class="card" style="margin-bottom: 2rem;">
+                        <div class="card" style="margin-bottom: 2rem; min-height: 400px;">
                             <div class="card-header">
-                                <h2>⏰ AFK Timer & Progress</h2>
+                                <h2><img src="mcclock.png" alt="Timer" style="width: 40px; height: 40px; vertical-align: middle; margin-right: 12px;" /> AFK Timer & Progress</h2>
                             </div>
                             <div class="card-body text-center">
                                 <!-- Timer Display -->
                                 <div class="result-display">
-                                    @if (!timerRunning && !timerPaused)
+                                    @if (timerCompleted)
+                                    {
+                                        <div class="result-label">Timer Complete!</div>
+                                        <div style="margin: 1.5rem 0;">
+                                            <img src="loading.webp" alt="Timer Complete" style="width: 120px; height: 120px; image-rendering: pixelated;" />
+                                        </div>
+                                        <div class="result-label" style="font-size: 0.9rem; margin-top: 0.5rem; color: #4CAF50;">
+                                            🎉 AFK Session Complete! Your items are ready!
+                                        </div>
+                                    }
+                                    else if (!timerRunning && !timerPaused)
                                     {
                                         <div class="result-label">Ready to Start</div>
-                                        <div class="result-value timer-display" style="color: white;">@FormatTime(hours * 3600 + minutes * 60)</div>
+                                        <div class="result-value timer-display" style="color: white; margin: 1.5rem 0;">@FormatTime(hours * 3600 + minutes * 60)</div>
                                         <div class="result-label" style="font-size: 0.9rem; margin-top: 0.5rem;">
                                             Total AFK Time: @hours h @minutes m
                                         </div>
@@ -172,7 +203,7 @@
                                     else if (timerRunning)
                                     {
                                         <div class="result-label">Time Remaining</div>
-                                        <div class="result-value timer-display pulse" style="color: white;">@FormatTime(timeRemaining)</div>
+                                        <div class="result-value timer-display pulse" style="color: white; margin: 1.5rem 0;">@FormatTime(timeRemaining)</div>
                                         <div class="result-label" style="font-size: 0.9rem; margin-top: 0.5rem;">
                                             Running - @Math.Round(((double)(totalTime - timeRemaining) / totalTime) * 100, 1)% Complete
                                         </div>
@@ -180,7 +211,7 @@
                                     else if (timerPaused)
                                     {
                                         <div class="result-label">Timer Paused</div>
-                                        <div class="result-value timer-display" style="color: white;">@FormatTime(timeRemaining)</div>
+                                        <div class="result-value timer-display" style="color: white; margin: 1.5rem 0;">@FormatTime(timeRemaining)</div>
                                         <div class="result-label" style="font-size: 0.9rem; margin-top: 0.5rem;">
                                             Paused at @Math.Round(((double)(totalTime - timeRemaining) / totalTime) * 100, 1)%
                                         </div>
@@ -189,75 +220,24 @@
                                 
                                 <!-- Timer Controls -->
                                 <div class="button-group">
-                                    @if (!timerRunning && !timerPaused)
+                                    @if (timerCompleted)
                                     {
-                                        <button @onclick="StartTimer" class="button button-primary">▶️ Start Timer</button>
+                                        <button @onclick="ResetTimerWithSound" class="button button-primary">🔄 Reset Timer</button>
+                                    }
+                                    else if (!timerRunning && !timerPaused)
+                                    {
+                                        <button @onclick="StartTimerWithSound" class="button button-primary">▶ Start Timer</button>
                                     }
                                     else if (timerRunning)
                                     {
-                                        <button @onclick="PauseTimer" class="button button-secondary">⏸️ Pause</button>
-                                        <button @onclick="StopTimer" class="button button-tertiary">⏹️ Stop</button>
+                                        <button @onclick="PauseTimerWithSound" class="button button-secondary">❚❚ Pause</button>
+                                        <button @onclick="StopTimerWithSound" class="button button-tertiary">◼ Stop</button>
                                     }
                                     else if (timerPaused)
                                     {
-                                        <button @onclick="ResumeTimer" class="button button-primary">▶️ Resume</button>
-                                        <button @onclick="StopTimer" class="button button-tertiary">⏹️ Stop</button>
+                                        <button @onclick="ResumeTimerWithSound" class="button button-primary">▶ Resume</button>
+                                        <button @onclick="StopTimerWithSound" class="button button-tertiary">◼ Stop</button>
                                     }
-                                </div>
-                                
-                                <!-- Progress Section -->
-                                @if (timerRunning || timerPaused)
-                                {
-                                    <div class="progress-section">
-                                        <div class="progress-bar">
-                                            <div class="progress-fill" style="width: @(Math.Max(1, ((double)(totalTime - timeRemaining) / totalTime) * 100))%"></div>
-                                        </div>
-                                        <div class="progress-text">@Math.Round(((double)(totalTime - timeRemaining) / totalTime) * 100, 1)% Complete - Keep AFK-ing!</div>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="progress-section">
-                                        <div class="progress-bar">
-                                            <div class="progress-fill" style="width: 0%"></div>
-                                        </div>
-                                        <div class="progress-text">Ready to start AFK session</div>
-                                    </div>
-                                }
-                                
-                                <!-- Additional Timer Info -->
-                                <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 4px;">
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: left;">
-                                        <div>
-                                            <strong>📦 Expected:</strong><br>
-                                            <span style="color: var(--accent-color);">@targetQuantity.ToString("N0") items</span>
-                                        </div>
-                                        <div>
-                                            <strong>⚡ Rate:</strong><br>
-                                            <span style="color: var(--accent-color);">@dropsPerHour.ToString("N0")/hr</span>
-                                        </div>
-                                        <div>
-                                            <strong>📊 Status:</strong><br>
-                                            <span style="color: white;">
-                                                @if (timerRunning) { <text>🟢 Active</text> }
-                                                else if (timerPaused) { <text>🟡 Paused</text> }
-                                                else { <text>⚪ Ready</text> }
-                                            </span>
-                                        </div>
-                                        <div>
-                                            <strong>🕒 Started:</strong><br>
-                                            <span style="color: var(--accent-color);">
-                                                @if (timerRunning || timerPaused) 
-                                                { 
-                                                    @DateTime.Now.AddSeconds(-(totalTime - timeRemaining)).ToString("HH:mm")
-                                                }
-                                                else 
-                                                { 
-                                                    <text>--:--</text> 
-                                                }
-                                            </span>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -267,47 +247,6 @@
                 <!-- Bottom Left - Analysis Results (Only visible after calculation) -->
                 @if (showResult)
                 {
-                    <div class="col-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <h2>📊 Analysis Results</h2>
-                            </div>
-                            <div class="card-body">
-                                <div class="result-display">
-                                    <div class="result-label">AFK Time Required</div>
-                                    <div class="result-value">@hours h @minutes m</div>
-                                </div>
-                                
-                                <div class="result-display" style="margin-top: 1rem;">
-                                    <div class="result-label">Efficiency Rating</div>
-                                    <div class="result-value">@GetEfficiencyRating()</div>
-                                </div>
-                                
-                                <!-- Farm Details -->
-                                <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 4px;">
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: left;">
-                                        <div>
-                                            <strong>🏭 Farm Type:</strong><br>
-                                            <span style="color: var(--accent-color);">@selectedFarm</span>
-                                        </div>
-                                        <div>
-                                            <strong>📦 Target:</strong><br>
-                                            <span style="color: var(--accent-color);">@targetQuantity.ToString("N0") items</span>
-                                        </div>
-                                        <div>
-                                            <strong>⚡ Base Rate:</strong><br>
-                                            <span style="color: var(--accent-color);">@dropsPer5Minutes/5min</span>
-                                        </div>
-                                        <div>
-                                            <strong>⏱️ Total Time:</strong><br>
-                                            <span style="color: var(--accent-color);">@hours h @minutes m</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
                     <!-- Bottom Right - Placeholder for Image/Video (Only visible after calculation) -->
                     <div class="col-6">
                         <div class="card" style="margin-top: 1rem;">
@@ -399,6 +338,7 @@
     // Timer functionality
     private bool timerRunning = false;
     private bool timerPaused = false;
+    private bool timerCompleted = false;
     private int timeRemaining = 0;
     private int totalTime = 0; // Store original time for restart functionality
     private Timer? countdownTimer;
@@ -414,6 +354,13 @@
             selectedFarm = value;
             OnFarmTypeChanged();
         }
+    }
+
+    private async Task OnFarmSelectionChange(ChangeEventArgs e)
+    {
+        await PlayButtonSound(); // Play sound when selection changes
+        selectedFarm = e.Value?.ToString() ?? "";
+        OnFarmTypeChanged();
     }
 
     private void OnFarmTypeChanged()
@@ -444,6 +391,43 @@
         }
     }
 
+    private async Task CalculateAfkTimeWithSound()
+    {
+        _ = PlayButtonSound(); // Fire and forget - don't wait
+        await CalculateAfkTime();
+    }
+    
+    private void StartTimerWithSound()
+    {
+        _ = PlayButtonSound(); // Fire and forget - don't wait
+        StartTimer();
+    }
+    
+    private void PauseTimerWithSound()
+    {
+        _ = PlayButtonSound(); // Fire and forget - don't wait
+        PauseTimer();
+    }
+    
+    private void ResumeTimerWithSound()
+    {
+        _ = PlayButtonSound(); // Fire and forget - don't wait
+        ResumeTimer();
+    }
+    
+    private void StopTimerWithSound()
+    {
+        _ = PlayButtonSound(); // Fire and forget - don't wait
+        StopTimer();
+    }
+    
+    private async Task ResetTimerWithSound()
+    {
+        await PlayButtonSound(); // Wait for button sound to play
+        await StopCompletionSound(); // Stop the completion sound first
+        ResetTimer(); // Reset the timer
+    }
+    
     private async Task CalculateAfkTime()
     {
         errorMessage = string.Empty;
@@ -530,6 +514,7 @@
         totalTime = timeRemaining; // Store for restart
         timerRunning = true;
         timerPaused = false;
+        timerCompleted = false;
         
         countdownTimer = new Timer(UpdateTimer, null, 0, 1000);
     }
@@ -558,23 +543,42 @@
     {
         timerRunning = false;
         timerPaused = false;
+        timerCompleted = false;
         countdownTimer?.Dispose();
         countdownTimer = null;
         timeRemaining = totalTime; // Reset to original time
     }
     
-    private void UpdateTimer(object? state)
+    private void ResetTimer()
+    {
+        timerRunning = false;
+        timerPaused = false;
+        timerCompleted = false;
+        countdownTimer?.Dispose();
+        countdownTimer = null;
+        timeRemaining = totalTime; // Reset to original time
+    }
+    
+    private async void UpdateTimer(object? state)
     {
         if (timeRemaining > 0)
         {
             timeRemaining--;
-            InvokeAsync(StateHasChanged);
+            await InvokeAsync(StateHasChanged);
         }
         else
         {
             timerRunning = false;
+            timerCompleted = true;
             countdownTimer?.Dispose();
-            InvokeAsync(StateHasChanged);
+            countdownTimer = null;
+            
+            // Play completion sound when timer finishes - ensure it runs on UI thread
+            await InvokeAsync(async () =>
+            {
+                await PlayCompletionSound();
+                StateHasChanged();
+            });
         }
     }
     
@@ -598,6 +602,49 @@
         else
         {
             await JSRuntime.InvokeVoidAsync("document.body.classList.remove", "dark-mode");
+        }
+    }
+    
+    private async Task PlayButtonSound()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("playButtonSound");
+        }
+        catch (Exception ex)
+        {
+            // Silently handle any audio playback errors
+            Console.WriteLine($"Audio playback failed: {ex.Message}");
+        }
+    }
+    
+    private async Task PlayCompletionSound()
+    {
+        try
+        {
+            Console.WriteLine("Attempting to play completion sound...");
+            await JSRuntime.InvokeVoidAsync("playCompletionSound");
+            Console.WriteLine("Completion sound method called successfully");
+        }
+        catch (Exception ex)
+        {
+            // Silently handle any audio playback errors
+            Console.WriteLine($"Completion audio playback failed: {ex.Message}");
+        }
+    }
+    
+    private async Task StopCompletionSound()
+    {
+        try
+        {
+            Console.WriteLine("Attempting to stop completion sound...");
+            await JSRuntime.InvokeVoidAsync("stopCompletionSound");
+            Console.WriteLine("Completion sound stopped successfully");
+        }
+        catch (Exception ex)
+        {
+            // Silently handle any audio stop errors
+            Console.WriteLine($"Completion audio stop failed: {ex.Message}");
         }
     }
     

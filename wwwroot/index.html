@@ -17,6 +17,106 @@
 <body class="bg-primary text-secondary">
     <div id="app"></div>
     <script src="_framework/blazor.webassembly.js"></script>
+    <script>
+        // Pre-load the audio for instant playback
+        let buttonAudio = null;
+        let completionAudio = null;
+        
+        window.initButtonSound = () => {
+            try {
+                buttonAudio = new Audio('mcbuttonsfx.mp3');
+                buttonAudio.volume = 0.5;
+                buttonAudio.preload = 'auto';
+                // Pre-load by playing and immediately pausing
+                buttonAudio.play().then(() => {
+                    buttonAudio.pause();
+                    buttonAudio.currentTime = 0;
+                }).catch(e => console.log('Audio pre-load failed:', e));
+            } catch (e) {
+                console.log('Audio initialization failed:', e);
+            }
+        };
+        
+        window.initCompletionSound = () => {
+            try {
+                completionAudio = new Audio('lavachicken.mp3');
+                completionAudio.volume = 0.7;
+                completionAudio.preload = 'auto';
+                // Pre-load by playing and immediately pausing
+                completionAudio.play().then(() => {
+                    completionAudio.pause();
+                    completionAudio.currentTime = 0;
+                }).catch(e => console.log('Completion audio pre-load failed:', e));
+            } catch (e) {
+                console.log('Completion audio initialization failed:', e);
+            }
+        };
+        
+        window.playButtonSound = () => {
+            try {
+                if (buttonAudio) {
+                    buttonAudio.currentTime = 0; // Reset to start
+                    buttonAudio.play().catch(e => console.log('Audio play failed:', e));
+                } else {
+                    // Fallback if audio wasn't pre-loaded
+                    const audio = new Audio('mcbuttonsfx.mp3');
+                    audio.volume = 0.5;
+                    audio.play().catch(e => console.log('Audio play failed:', e));
+                }
+            } catch (e) {
+                console.log('Audio playback failed:', e);
+            }
+        };
+        
+        window.playCompletionSound = () => {
+            try {
+                console.log('Playing completion sound...');
+                if (completionAudio) {
+                    completionAudio.currentTime = 0; // Reset to start
+                    completionAudio.play().then(() => {
+                        console.log('Completion sound played successfully');
+                    }).catch(e => {
+                        console.log('Completion audio play failed:', e);
+                        // Fallback to new audio instance
+                        const fallbackAudio = new Audio('lavachicken.mp3');
+                        fallbackAudio.volume = 0.7;
+                        fallbackAudio.play().catch(e2 => console.log('Fallback audio failed:', e2));
+                    });
+                } else {
+                    console.log('Using fallback completion audio');
+                    // Fallback if audio wasn't pre-loaded
+                    const audio = new Audio('lavachicken.mp3');
+                    audio.volume = 0.7;
+                    audio.play().then(() => {
+                        console.log('Fallback completion sound played successfully');
+                    }).catch(e => console.log('Completion audio play failed:', e));
+                }
+            } catch (e) {
+                console.log('Completion audio playback failed:', e);
+            }
+        };
+        
+        window.stopCompletionSound = () => {
+            try {
+                console.log('Stopping completion sound...');
+                if (completionAudio) {
+                    completionAudio.pause();
+                    completionAudio.currentTime = 0;
+                    console.log('Completion sound stopped successfully');
+                } else {
+                    console.log('No completion audio to stop');
+                }
+            } catch (e) {
+                console.log('Completion audio stop failed:', e);
+            }
+        };
+        
+        // Initialize audio when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.initButtonSound();
+            window.initCompletionSound();
+        });
+    </script>
 </body>
 
 </html>
