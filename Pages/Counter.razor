@@ -1,69 +1,129 @@
-@page "/counter"
+@page "/clicker"
 @inject IJSRuntime JSRuntime
-
-<PageTitle>Counter - MC AFK Tracker</PageTitle>
 
 <!-- Navigation using Minecraft CSS Framework -->
 <nav class="navbar">
-    <div class="navbar-brand">MC AFK Tracker</div>
     <ul class="navbar-nav">
-        <li><a href="/">🏠 Home</a></li>
-        <li><a href="/counter">🔢 Counter</a></li>
-        <li><a href="/help">❓ Help</a></li>
+        <li><a href="/" @onclick="PlayButtonSound">Home</a></li>
+        <li><a href="/clicker" @onclick="PlayButtonSound">clicker</a></li>
+        <li><a href="/help" @onclick="PlayButtonSound">Help</a></li>
     </ul>
-</nav>
+</nav> 
+
+<PageTitle>Bedrock Clicker - MC AFK Tracker</PageTitle>
 
 <!-- Main Content -->
 <div class="container">
     <!-- Hero Section -->
-    <div class="hero-section">
-        <div class="hero-content">
-            <h1 class="hero-title">Item Counter</h1>
-            <p class="hero-subtitle">Track Your Collection Progress</p>
-            <p class="hero-description">Keep track of items collected during your AFK sessions with this Minecraft-style counter tool.</p>
+    <div class="row">
+        <div class="col-12">
+            <div class="hero-section">
+                <h1 class="hero-title">Bedrock Clicker</h1>
+                <p class="hero-subtitle">Try to break the unbreakable! Click the bedrock as fast as you can!</p>
+            </div>
         </div>
     </div>
 
-    <!-- Counter Card -->
-    <div class="grid">
-        <div class="col-12 col-md-8 mx-auto">
-            <div class="card">
-                <div class="card-header">
-                    <h2>📦 Item Collection Counter</h2>
-                </div>
-                <div class="card-body text-center">
-                    <div class="result-display">
-                        <img src="https://minecraft.wiki/images/f/f7/Bundle_JE2_BE1.png" alt="Bundle" class="result-icon">
-                        <div class="result-label">Items Collected</div>
-                        <div class="result-value">@currentCount</div>
-                    </div>
-                    
-                    <div class="button-group">
-                        <button class="button button-primary" @onclick="IncrementCount">
-                            ➕ Collect Item
-                        </button>
-                        
-                        @if (currentCount > 0)
-                        {
-                            <button class="button button-secondary" @onclick="DecrementCount">
-                                ➖ Remove Item
-                            </button>
-                            
-                            <button class="button button-tertiary" @onclick="ResetCount">
-                                🗑️ Empty Collection
-                            </button>
-                        }
-                    </div>
-                    
-                    @if (currentCount > 0)
-                    {
-                        <div class="progress-section">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: @(Math.Min(100, (currentCount / 64.0) * 100))%"></div>
-                            </div>
-                            <div class="progress-text">@currentCount / 64 items (Stack Progress)</div>
+    <!-- Main Game Layout - 2 Sections -->
+    <div class="row" style="margin-bottom: 2rem;">
+        <div class="col-12">
+            <div class="grid" style="gap: 2rem;">
+                <!-- Left Section - Bedrock Clicker -->
+                <div class="col-6">
+                    <div class="card" style="min-height: 500px;">
+                        <div class="card-header text-center">
+                            <p style="margin: 0.5rem 0; color: white;">
+                                Legend says bedrock is unbreakable... but how many clicks can you get?
+                            </p>
                         </div>
-                    }
+                        <div class="card-body text-center" style="padding: 3rem 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <!-- Bedrock Clicking Area -->
+                            <div style="margin: 2rem 0;">
+                                <div class="bedrock-container" style="display: inline-block; position: relative;">
+                                    <img src="bedrock.webp" 
+                                         alt="Bedrock Block" 
+                                         class="bedrock-block @GetBedrockShakeClass()" 
+                                         style="width: 240px; height: 240px; image-rendering: pixelated; cursor: pointer; border-radius: 8px; transition: transform 0.1s ease;" 
+                                         @onclick="ClickBedrockAtPosition"
+                                         @onmousedown="OnBedrockMouseDown"
+                                         @onmouseup="OnBedrockMouseUp" />
+                                    
+                                    @if (clickEffects.Any())
+                                    {
+                                        @foreach (var effect in clickEffects)
+                                        {
+                                            <div class="click-effect" style="position: absolute; top: @(effect.Y)px; left: @(effect.X)px; transform: translate(-50%, -50%); pointer-events: none; font-size: 2rem; color: #FFD700; font-weight: bold; animation: clickPop 0.8s ease-out;">
+                                                +1
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 1.5rem; font-size: 1rem; color: var(--text-muted); text-align: center;">
+                                💡 Click the bedrock as fast as you can!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Section - Game Information -->
+                <div class="col-6">
+                    <div class="card" style="min-height: 100px;">
+
+                        <div class="card-body">
+                            <!-- Click Counter Display -->
+                            <div class="result-display text-center" style="margin-bottom: 2rem;">
+                                <div class="result-label">Total Clicks</div>
+                                <div class="result-value" style="font-size: 3.5rem; color: #FFD700; margin: 1rem 0;">@currentCount</div>
+                                <div class="result-label" style="font-size: 1rem; margin-top: 0.5rem; color: var(--text-muted);">
+                                    @GetClickMessage()
+                                </div>
+                            </div>
+                            
+                            <!-- Stats Grid -->
+                            @if (currentCount > 0 || highScore > 0)
+                            {
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                                    <div class="stat-card" style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 8px; text-align: center;">
+                                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏆</div>
+                                        <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">High Score</div>
+                                        <div style="font-size: 1.8rem; color: #FFD700; font-weight: bold;">@Math.Max(currentCount, highScore)</div>
+                                    </div>
+                                    <div class="stat-card" style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 8px; text-align: center;">
+                                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚡</div>
+                                        <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Click Rate</div>
+                                        <div style="font-size: 1.8rem; color: #4CAF50; font-weight: bold;">@GetClickRate()</div>
+                                        <div style="font-size: 0.8rem; color: var(--text-muted);">clicks/sec</div>
+                                    </div>
+                                </div>
+                                
+                                @if (highScore > 0)
+                                {
+                                    <div style="margin-bottom: 2rem; text-align: center; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                                        <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">💾 Progress Saved</div>
+                                        <div style="font-size: 0.8rem; color: var(--text-muted);">Your high score and current progress are automatically saved!</div>
+                                    </div>
+                                }
+                            }
+                            
+                            <!-- Controls -->
+                            <div class="button-group" style="text-align: center;">
+                                @if (currentCount > 0)
+                                {
+                                    <button class="button button-secondary" @onclick="ResetCounterWithSound" style="margin: 0.5rem;">
+                                        🗘 Reset Counter
+                                    </button>
+                                }
+                                else
+                                {
+                                    <div style="color: var(--text-muted); font-style: italic;">
+                                        Start clicking to see your stats!
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -72,22 +132,262 @@
 
 @code {
     private int currentCount = 0;
+    private int highScore = 0;
+    private DateTime lastClickTime = DateTime.Now;
+    private List<DateTime> recentClicks = new List<DateTime>();
+    private bool showClickEffect = false;
+    private bool isBedrockShaking = false;
+    private double clickEffectX = 120; // Default to center of 240px image
+    private double clickEffectY = 120; // Default to center of 240px image
+    private List<ClickEffect> clickEffects = new List<ClickEffect>();
 
-    private void IncrementCount()
+    public class ClickEffect
     {
-        currentCount++;
+        public double X { get; set; }
+        public double Y { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
     
-    private void DecrementCount()
+    private class ClickerState
     {
-        if (currentCount > 0)
+        public int CurrentCount { get; set; } = 0;
+        public int HighScore { get; set; } = 0;
+        public DateTime LastClickTime { get; set; } = DateTime.Now;
+        public DateTime SessionStartTime { get; set; } = DateTime.Now;
+    }
+
+    private async void ClickBedrockAtPosition(MouseEventArgs e)
+    {
+        currentCount++;
+        lastClickTime = DateTime.Now;
+        
+        // Track recent clicks for rate calculation
+        recentClicks.Add(lastClickTime);
+        if (recentClicks.Count > 10)
         {
-            currentCount--;
+            recentClicks.RemoveAt(0);
+        }
+        
+        // Add new click effect at the clicked position
+        clickEffects.Add(new ClickEffect 
+        { 
+            X = e.OffsetX, 
+            Y = e.OffsetY, 
+            CreatedAt = DateTime.Now 
+        });
+        
+        // Trigger bedrock shake
+        isBedrockShaking = true;
+        StateHasChanged();
+        
+        // Save clicker state after each click
+        await SaveClickerState();
+        
+        // Remove shake effect after animation
+        await Task.Delay(200);
+        isBedrockShaking = false;
+        StateHasChanged();
+        
+        // Remove this specific click effect after 800ms (matching CSS animation duration)
+        await Task.Delay(800);
+        clickEffects.RemoveAll(effect => (DateTime.Now - effect.CreatedAt).TotalMilliseconds >= 800);
+        StateHasChanged();
+    }
+
+    private async void ClickBedrock()
+    {
+        currentCount++;
+        lastClickTime = DateTime.Now;
+        
+        // Track recent clicks for rate calculation
+        recentClicks.Add(lastClickTime);
+        if (recentClicks.Count > 10)
+        {
+            recentClicks.RemoveAt(0);
+        }
+        
+        // Show click effect
+        showClickEffect = true;
+        StateHasChanged();
+        
+        // Trigger bedrock shake
+        isBedrockShaking = true;
+        StateHasChanged();
+        
+        // Remove effects after animation
+        await Task.Delay(200);
+        isBedrockShaking = false;
+        StateHasChanged();
+        
+        await Task.Delay(300);
+        showClickEffect = false;
+        StateHasChanged();
+    }
+    
+    private void OnBedrockMouseDown()
+    {
+        // Visual feedback on mouse down
+    }
+    
+    private void OnBedrockMouseUp()
+    {
+        // Visual feedback on mouse up
+    }
+    
+    private async void ResetCounter()
+    {
+        if (currentCount > highScore)
+        {
+            highScore = currentCount;
+        }
+        currentCount = 0;
+        recentClicks.Clear();
+        
+        // Save state after reset
+        await SaveClickerState();
+    }
+    
+
+    
+    private string GetClickMessage()
+    {
+        return currentCount switch
+        {
+            0 => "The bedrock stands unbroken...",
+            < 10 => "Just getting started!",
+            < 100 => "You're making some progress!",
+            < 200 => "The bedrock trembles slightly...",
+            < 500 => "Impressive clicking speed!",
+            < 1000 => "The bedrock is getting worried!",
+            < 2000 => "Legendary clicking power!",
+            _ => "You've transcended mortal clicking limits!"
+        };
+    }
+    
+    private string GetClickRate()
+    {
+        if (recentClicks.Count < 2)
+            return "0.0";
+            
+        var now = DateTime.Now;
+        var validClicks = recentClicks.Where(click => (now - click).TotalSeconds <= 5).ToList();
+        
+        if (validClicks.Count < 2)
+            return "0.0";
+            
+        var timeSpan = (now - validClicks.First()).TotalSeconds;
+        var rate = validClicks.Count / Math.Max(timeSpan, 1);
+        
+        return rate.ToString("F1");
+    }
+    
+    private string GetBedrockShakeClass()
+    {
+        return isBedrockShaking ? "bedrock-shake" : "";
+    }
+    
+    private async Task PlayButtonSound()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("playButtonSound");
+        }
+        catch (Exception ex)
+        {
+            // Silently handle any audio playback errors
+            Console.WriteLine($"Audio playback failed: {ex.Message}");
         }
     }
     
-    private void ResetCount()
+    private async Task SaveClickerState()
     {
-        currentCount = 0;
+        try
+        {
+            var clickerState = new ClickerState
+            {
+                CurrentCount = currentCount,
+                HighScore = highScore,
+                LastClickTime = lastClickTime,
+                SessionStartTime = DateTime.Now
+            };
+            
+            var json = System.Text.Json.JsonSerializer.Serialize(clickerState);
+            await JSRuntime.InvokeVoidAsync("saveClickerState", json);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to save clicker state: {ex.Message}");
+        }
     }
+    
+    private async Task LoadClickerState()
+    {
+        try
+        {
+            var json = await JSRuntime.InvokeAsync<string>("loadClickerState");
+            
+            if (!string.IsNullOrEmpty(json))
+            {
+                var clickerState = System.Text.Json.JsonSerializer.Deserialize<ClickerState>(json);
+                
+                if (clickerState != null)
+                {
+                    currentCount = clickerState.CurrentCount;
+                    highScore = clickerState.HighScore;
+                    lastClickTime = clickerState.LastClickTime;
+                    
+                    StateHasChanged();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to load clicker state: {ex.Message}");
+        }
+    }
+    
+    private async Task ClearClickerState()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("clearClickerState");
+            currentCount = 0;
+            highScore = 0;
+            recentClicks.Clear();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to clear clicker state: {ex.Message}");
+        }
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadClickerState();
+        }
+    }
+    
+    private async Task ResetCounterWithSound()
+    {
+        await PlayButtonSound();
+        ResetCounter();
+    }
+    
+    private async Task SaveHighScoreWithSound()
+    {
+        await PlayButtonSound();
+        
+        if (currentCount > highScore)
+        {
+            highScore = currentCount;
+        }
+        
+        // Save state after updating high score
+        await SaveClickerState();
+    }
+    
+
 }

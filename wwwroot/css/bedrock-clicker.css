@@ -1,0 +1,47 @@
+/* Bedrock Clicker Game Styles */
+.bedrock-block {
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.6))
+            drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+}
+
+.bedrock-block:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1) 
+            drop-shadow(0 12px 24px rgba(0, 0, 0, 0.7))
+            drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5));
+}
+
+.bedrock-block:active {
+    transform: scale(0.95);
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8))
+            drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+}
+
+.bedrock-shake {
+    animation: bedrockShake 0.2s ease-in-out;
+}
+
+@keyframes bedrockShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-2px) rotate(-1deg); }
+    75% { transform: translateX(2px) rotate(1deg); }
+}
+
+@keyframes clickPop {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    70% {
+        opacity: 1;
+        transform: translate(-50%, -80%) scale(1.2);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -100%) scale(1.5);
+    }
+}
+
+.click-effect {
+    z-index: 10;
+}

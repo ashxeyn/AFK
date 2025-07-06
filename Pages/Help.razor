@@ -1,4 +1,5 @@
 @page "/help"
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Help - MC AFK Tracker</PageTitle>
 
@@ -6,9 +7,9 @@
 <nav class="navbar">
     <div class="navbar-brand">MC AFK Tracker</div>
     <ul class="navbar-nav">
-        <li><a href="/">🏠 Home</a></li>
-        <li><a href="/counter">🔢 Counter</a></li>
-        <li><a href="/help" class="active">❓ Help</a></li>
+        <li><a href="/" @onclick="PlayButtonSound">Home</a></li>
+        <li><a href="/clicker" @onclick="PlayButtonSound">Clicker</a></li>
+        <li><a href="/help" @onclick="PlayButtonSound" class="active">Help</a></li>
     </ul>
 </nav>
 
@@ -18,78 +19,232 @@
     <div class="row">
         <div class="col-12">
             <div class="hero-section">
-                <h1 class="hero-title">❓ Help & Instructions</h1>
-                <p class="hero-subtitle">Learn how to use the MC AFK Tracker effectively</p>
+                <h1 class="hero-title">Help & Instructions</h1>
+                <p class="hero-subtitle">Master the MC AFK Tracker and Bedrock Clicker features</p>
             </div>
         </div>
     </div>
 
-    <!-- Help Content -->
+    <!-- Main Features Overview -->
     <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h2>📖 How to Use the MC AFK Tracker</h2>
+                    <h2>🎮 Main Features</h2>
                 </div>
                 <div class="card-body">
-                    <h3>🎯 Overview</h3>
-                    <p>The MC AFK Tracker helps you plan your Minecraft AFK farming sessions. Select your farm type, set your target items, and let the tracker calculate the optimal AFK time and provide real-time progress monitoring.</p>
-                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                        <div class="feature-card">
+                            <h3>🏭 AFK Farm Tracker</h3>
+                            <p>Plan and time your AFK farming sessions with precision. Calculate exact times needed for any resource goal and track progress in real-time.</p>
+                            <ul>
+                                <li>30+ pre-configured farm types</li>
+                                <li>Custom farm creation and management</li>
+                                <li>Real-time timer with pause/resume</li>
+                                <li>Automatic progress saving</li>
+                                <li>Efficiency analysis and ratings</li>
+                            </ul>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Bedrock Clicker Minigame</h3>
+                            <p>A fun clicking game inspired by Minecraft's unbreakable bedrock. See how fast you can click and compete for high scores!</p>
+                            <ul>
+                                <li>Visual click effects and animations</li>
+                                <li>Real-time click rate calculation</li>
+                                <li>Automatic high score tracking</li>
+                                <li>Progress persistence across sessions</li>
+                                <li>Engaging feedback messages</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AFK Tracker Instructions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h2>🏭 AFK Farm Tracker Guide</h2>
+                </div>
+                <div class="card-body">
                     <h3>🔧 Step-by-Step Instructions</h3>
                     
                     <div class="step">
                         <h4>Step 1: Select Your Farm Type</h4>
-                        <p>Choose from the dropdown menu which type of farm you're using. Each farm type has pre-configured production rates based on typical Minecraft farm designs:</p>
+                        <p>Choose from 30+ pre-configured farm types or create your own custom farm. Each has optimized production rates:</p>
+                        <div class="farm-categories">
+                            <div class="farm-category">
+                                <strong>Basic Farms:</strong>
+                                <ul>
+                                    <li>🔩 Iron Farm (120/5min)</li>
+                                    <li>🥇 Gold Farm (80/5min)</li>
+                                    <li>🌾 Crop Farm (200/5min)</li>
+                                    <li>👾 Mob Farm (150/5min)</li>
+                                </ul>
+                            </div>
+                            <div class="farm-category">
+                                <strong>Hostile Mobs:</strong>
+                                <ul>
+                                    <li>💀 Skeleton Farm (180/5min)</li>
+                                    <li>🧟 Zombie Farm (140/5min)</li>
+                                    <li>💥 Creeper Farm (90/5min)</li>
+                                    <li>👤 Enderman Farm (300/5min)</li>
+                                    <li>🔥 Blaze Farm (250/5min)</li>
+                                    <li>🐟 Guardian Farm (400/5min)</li>
+                                </ul>
+                            </div>
+                            <div class="farm-category">
+                                <strong>Plant & Special Farms:</strong>
+                                <ul>
+                                    <li>🌳 Tree Farm (300/5min)</li>
+                                    <li>🌱 Kelp Farm (250/5min)</li>
+                                    <li>🎋 Bamboo Farm (300/5min)</li>
+                                    <li>🍯 Honey Farm (45/5min)</li>
+                                    <li>👨‍🌾 Villager Trading (50/5min)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <h4>Step 2: Create Custom Farms (Optional)</h4>
+                        <p>Build your own farm configurations for unique setups:</p>
                         <ul>
-                            <li><strong>🔩 Iron Farm:</strong> 120 items per 5 minutes (Iron Ingots)</li>
-                            <li><strong>🥇 Gold Farm:</strong> 80 items per 5 minutes (Gold Ingots/Nuggets)</li>
-                            <li><strong>🌾 Crop Farm:</strong> 200 items per 5 minutes (Wheat, Carrots, Potatoes)</li>
-                            <li><strong>👾 Mob Farm:</strong> 150 items per 5 minutes (General mob drops)</li>
-                            <li><strong>💀 Skeleton Farm:</strong> 180 items per 5 minutes (Bones, Arrows)</li>
-                            <li><strong>🕷️ Spider Farm:</strong> 160 items per 5 minutes (String, Spider Eyes)</li>
-                            <li><strong>🧟 Zombie Farm:</strong> 140 items per 5 minutes (Rotten Flesh, Iron)</li>
-                            <li><strong>💥 Creeper Farm:</strong> 90 items per 5 minutes (Gunpowder)</li>
-                            <li><strong>🐄 Cow Farm:</strong> 100 items per 5 minutes (Leather, Raw Beef)</li>
-                            <li><strong>🐷 Pig Farm:</strong> 95 items per 5 minutes (Porkchops)</li>
-                            <li><strong>🐔 Chicken Farm:</strong> 110 items per 5 minutes (Feathers, Raw Chicken)</li>
-                            <li><strong>🐑 Sheep Farm:</strong> 85 items per 5 minutes (Wool, Mutton)</li>
-                            <li><strong>🦆 Cod Farm:</strong> 130 items per 5 minutes (Cod)</li>
-                            <li><strong>🐟 Salmon Farm:</strong> 125 items per 5 minutes (Salmon)</li>
-                            <li><strong>🐠 Tropical Fish Farm:</strong> 75 items per 5 minutes (Tropical Fish)</li>
-                            <li><strong>🐡 Pufferfish Farm:</strong> 70 items per 5 minutes (Pufferfish)</li>
-                            <li><strong>🌱 Kelp Farm:</strong> 250 items per 5 minutes (Kelp)</li>
-                            <li><strong>🍄 Mushroom Farm:</strong> 180 items per 5 minutes (Mushrooms)</li>
-                            <li><strong>🎋 Bamboo Farm:</strong> 300 items per 5 minutes (Bamboo)</li>
-                            <li><strong>🌵 Cactus Farm:</strong> 150 items per 5 minutes (Cactus)</li>
-                            <li><strong>🍯 Honey Farm:</strong> 45 items per 5 minutes (Honey Bottles)</li>
-                            <li><strong>🕯️ Wax Farm:</strong> 40 items per 5 minutes (Honeycomb)</li>
+                            <li>Click the "Custom" button next to the farm selector</li>
+                            <li>Enter a descriptive name for your farm</li>
+                            <li>Set the production rate (items per 5 minutes)</li>
+                            <li>Save and reuse across sessions</li>
+                            <li>Delete custom farms you no longer need</li>
                         </ul>
                     </div>
 
                     <div class="step">
-                        <h4>Step 2: Set Your Target</h4>
-                        <p>Enter the number of items you want to collect. This can be anything from a few stacks to several double chests worth of items.</p>
-                    </div>
-
-                    <div class="step">
-                        <h4>Step 3: Start the Timer</h4>
-                        <p>Click the "Start AFK Timer" button to begin tracking your session. The timer will:</p>
+                        <h4>Step 3: Set Your Target</h4>
+                        <p>Enter the number of items you want to collect (1 to 1,000,000). Examples:</p>
                         <ul>
-                            <li>Show your progress in real-time</li>
-                            <li>Display estimated completion time</li>
-                            <li>Provide visual progress indicators</li>
-                            <li>Calculate efficiency metrics</li>
+                            <li>64 items = 1 stack</li>
+                            <li>1,728 items = 1 double chest (27 stacks)</li>
+                            <li>10,000+ items = Massive building projects</li>
                         </ul>
                     </div>
 
                     <div class="step">
-                        <h4>Step 4: Monitor Progress</h4>
-                        <p>Watch the timer and progress bar to track your farming session. The analysis panel shows:</p>
+                        <h4>Step 4: Calculate & Start Timer</h4>
+                        <p>Click "Calculate Now" to see your AFK time, then use the timer controls:</p>
                         <ul>
-                            <li><strong>Total Time Required:</strong> How long you need to AFK</li>
-                            <li><strong>Items per Hour:</strong> Production rate for your farm</li>
-                            <li><strong>Progress Percentage:</strong> How much of your goal you've completed</li>
-                            <li><strong>Estimated Completion:</strong> When your session will finish</li>
+                            <li><strong>▶ Start Timer:</strong> Begin your AFK session</li>
+                            <li><strong>❚❚ Pause:</strong> Temporarily pause (for breaks)</li>
+                            <li><strong>▶ Resume:</strong> Continue from where you paused</li>
+                            <li><strong>◼ Stop:</strong> Stop and reset to calculated time</li>
+                            <li><strong>🗘 Reset Timer:</strong> Reset after completion</li>
+                        </ul>
+                    </div>
+
+                    <div class="step">
+                        <h4>Step 5: Monitor Progress</h4>
+                        <p>Track your session with detailed analytics:</p>
+                        <ul>
+                            <li><strong>Time Remaining:</strong> Countdown to completion</li>
+                            <li><strong>Progress Percentage:</strong> Visual completion indicator</li>
+                            <li><strong>Efficiency Rating:</strong> ⭐⭐⭐ Excellent to ⚠️ Poor ratings</li>
+                            <li><strong>Farm Analysis:</strong> Complete session breakdown</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clicker Game Instructions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h2>🎯 Bedrock Clicker Guide</h2>
+                </div>
+                <div class="card-body">
+                    <h3>🎮 How to Play</h3>
+                    
+                    <div class="step">
+                        <h4>Goal</h4>
+                        <p>Click the bedrock block as fast as you can to achieve the highest score possible! The game tracks your clicking speed and saves your progress automatically.</p>
+                    </div>
+
+                    <div class="step">
+                        <h4>Game Features</h4>
+                        <ul>
+                            <li><strong>Visual Effects:</strong> Click animations and bedrock shaking</li>
+                            <li><strong>Real-time Stats:</strong> Current count, high score, and click rate</li>
+                            <li><strong>Click Rate:</strong> Measures clicks per second for the last 5 seconds</li>
+                            <li><strong>Progressive Messages:</strong> Encouraging feedback as you progress</li>
+                            <li><strong>Auto-Save:</strong> All progress saved automatically</li>
+                        </ul>
+                    </div>
+
+                    <div class="step">
+                        <h4>Controls</h4>
+                        <ul>
+                            <li><strong>Click Bedrock:</strong> Increase your score</li>
+                            <li><strong>🗘 Reset Counter:</strong> Start over (saves high score)</li>
+                        </ul>
+                    </div>
+
+                    <div class="step">
+                        <h4>Scoring Milestones</h4>
+                        <ul>
+                            <li><strong>0 clicks:</strong> "The bedrock stands unbroken..."</li>
+                            <li><strong>10+ clicks:</strong> "Just getting started!"</li>
+                            <li><strong>100+ clicks:</strong> "You're making some progress!"</li>
+                            <li><strong>500+ clicks:</strong> "Impressive clicking speed!"</li>
+                            <li><strong>1000+ clicks:</strong> "The bedrock is getting worried!"</li>
+                            <li><strong>2000+ clicks:</strong> "You've transcended mortal clicking limits!"</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Persistence Features -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h2>💾 Automatic Progress Saving</h2>
+                </div>
+                <div class="card-body">
+                    <h3>🔄 What Gets Saved Automatically</h3>
+                    
+                    <div class="save-category">
+                        <h4>🏭 AFK Tracker Progress</h4>
+                        <ul>
+                            <li>Selected farm type and target quantity</li>
+                            <li>Custom farm configurations and names</li>
+                            <li>Timer state (running, paused, completed)</li>
+                            <li>Remaining time and progress percentage</li>
+                            <li>Calculation results and efficiency ratings</li>
+                        </ul>
+                    </div>
+
+                    <div class="save-category">
+                        <h4>🎯 Clicker Game Progress</h4>
+                        <ul>
+                            <li>Current click count and high score</li>
+                            <li>Last click time and session data</li>
+                            <li>All statistics and achievements</li>
+                        </ul>
+                    </div>
+
+                    <div class="save-category">
+                        <h4>✨ Benefits</h4>
+                        <ul>
+                            <li><strong>No Manual Saving:</strong> Everything saves automatically</li>
+                            <li><strong>Session Recovery:</strong> Resume exactly where you left off</li>
+                            <li><strong>Browser Safe:</strong> Reload pages without losing progress</li>
+                            <li><strong>Long-term Storage:</strong> Data persists between sessions</li>
                         </ul>
                     </div>
                 </div>
@@ -102,36 +257,60 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h2>💡 Pro Tips</h2>
+                    <h2>💡 Pro Tips & Best Practices</h2>
                 </div>
                 <div class="card-body">
                     <div class="tip">
-                        <h4>🎮 AFK Best Practices</h4>
+                        <h4>🎮 AFK Session Optimization</h4>
                         <ul>
-                            <li>Make sure your character is in the correct position for your farm</li>
-                            <li>Check that all farm mechanisms are working before starting</li>
-                            <li>Ensure your inventory has enough space for the items</li>
-                            <li>Consider using an auto-clicker if your farm requires interaction</li>
+                            <li><strong>Position Correctly:</strong> Make sure your character is in the optimal position for your farm</li>
+                            <li><strong>Pre-Flight Check:</strong> Verify all farm mechanisms are working before starting the timer</li>
+                            <li><strong>Storage Space:</strong> Ensure your inventory and chests have enough space</li>
+                            <li><strong>Chunk Loading:</strong> Keep your farm area loaded (use spawn chunks or chunk loaders)</li>
+                            <li><strong>Server Performance:</strong> AFK during off-peak hours for better rates</li>
                         </ul>
                     </div>
 
                     <div class="tip">
-                        <h4>⚡ Optimizing Farm Efficiency</h4>
+                        <h4>⚡ Custom Farm Creation Tips</h4>
                         <ul>
-                            <li>Iron farms work best when you're the only player online</li>
-                            <li>Mob farms may need periodic clearing of nearby caves</li>
-                            <li>Crop farms benefit from proper lighting and water placement</li>
-                            <li>Gold farms require being in the Nether with proper portal alignment</li>
+                            <li><strong>Test First:</strong> Run your farm for 5-10 minutes to get accurate rates</li>
+                            <li><strong>Descriptive Names:</strong> Use clear names like "My Iron Farm v2" or "Nether Gold Farm"</li>
+                            <li><strong>Account for Variables:</strong> Consider server lag and optimal conditions</li>
+                            <li><strong>Multiple Configurations:</strong> Create different entries for different farm states</li>
+                            <li><strong>Regular Updates:</strong> Update rates if you improve your farm design</li>
                         </ul>
                     </div>
 
                     <div class="tip">
-                        <h4>🔧 Troubleshooting</h4>
+                        <h4>🎯 Clicker Game Strategies</h4>
                         <ul>
-                            <li>If production seems low, check for mob cap issues</li>
-                            <li>Ensure chunk loading for your farm area</li>
-                            <li>Verify redstone contraptions are functioning properly</li>
-                            <li>Check that hoppers and storage systems aren't full</li>
+                            <li><strong>Proper Technique:</strong> Use multiple fingers for maximum clicking speed</li>
+                            <li><strong>Click Positioning:</strong> Click effects appear where you click for visual feedback</li>
+                            <li><strong>Take Breaks:</strong> Avoid strain during long clicking sessions</li>
+                            <li><strong>Monitor Rate:</strong> Watch your clicks/second to find your optimal rhythm</li>
+                            <li><strong>High Score Goals:</strong> Set personal milestones (100, 500, 1000+ clicks)</li>
+                        </ul>
+                    </div>
+
+                    <div class="tip">
+                        <h4>🔧 Troubleshooting Common Issues</h4>
+                        <ul>
+                            <li><strong>Low Production:</strong> Check for mob cap issues and clear nearby caves</li>
+                            <li><strong>Timer Not Saving:</strong> Ensure JavaScript is enabled in your browser</li>
+                            <li><strong>Custom Farms Not Loading:</strong> Check browser localStorage isn't full</li>
+                            <li><strong>Audio Issues:</strong> Browser may block autoplay - click to enable sounds</li>
+                            <li><strong>Performance Issues:</strong> Close other tabs and applications while AFK</li>
+                        </ul>
+                    </div>
+
+                    <div class="tip">
+                        <h4>📱 Cross-Device Usage</h4>
+                        <ul>
+                            <li><strong>Data Sync:</strong> Progress is saved per device/browser</li>
+                            <li><strong>Mobile Friendly:</strong> Both tracker and clicker work on mobile devices</li>
+                            <li><strong>Multiple Setups:</strong> Use different devices for different farm configurations</li>
+                            <li><strong>Backup Important Farms:</strong> Note down custom farm settings manually</li>
                         </ul>
                     </div>
                 </div>
@@ -147,11 +326,78 @@
                     <h2>ℹ️ About MC AFK Tracker</h2>
                 </div>
                 <div class="card-body">
-                    <p>MC AFK Tracker is designed to help Minecraft players optimize their AFK farming sessions. Whether you're gathering resources for a massive build project or just want to automate your resource collection, this tool provides the calculations and timing you need.</p>
+                    <h3>🎯 Project Overview</h3>
+                    <p>MC AFK Tracker is a comprehensive web application designed to optimize your Minecraft AFK farming experience. Built with modern web technologies, it combines practical farming calculations with engaging interactive elements.</p>
                     
-                    <p>The production rates are based on commonly used farm designs from the Minecraft community. Your actual rates may vary depending on your specific farm design, server performance, and game version.</p>
-                    
+                    <h3>✨ Key Features</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                        <div>
+                            <h4>🏭 AFK Farm Tracker</h4>
+                            <ul>
+                                <li>30+ pre-configured farm types with optimized rates</li>
+                                <li>Custom farm creation and management system</li>
+                                <li>Real-time timer with pause/resume functionality</li>
+                                <li>Automatic progress saving and session recovery</li>
+                                <li>Detailed efficiency analysis and ratings</li>
+                                <li>Professional Minecraft-themed UI</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4>🎯 Bedrock Clicker Minigame</h4>
+                            <ul>
+                                <li>Interactive clicking game with visual effects</li>
+                                <li>Real-time click rate calculation</li>
+                                <li>Automatic high score tracking</li>
+                                <li>Progressive feedback and achievements</li>
+                                <li>Persistent progress across sessions</li>
+                                <li>Mobile-friendly touch controls</li>
+                            </ul>
+                        </div>
+                    </div>
 
+                    <h3>🔧 Technical Details</h3>
+                    <ul>
+                        <li><strong>Framework:</strong> Built with Blazor WebAssembly for modern web performance</li>
+                        <li><strong>Styling:</strong> Custom Minecraft CSS framework for authentic theming</li>
+                        <li><strong>Persistence:</strong> Browser localStorage for automatic data saving</li>
+                        <li><strong>Audio:</strong> Web Audio API for interactive sound effects</li>
+                        <li><strong>Responsive:</strong> Optimized for desktop, tablet, and mobile devices</li>
+                        <li><strong>Offline Ready:</strong> Works without internet connection after initial load</li>
+                    </ul>
+
+                    <h3>📊 Production Rate Sources</h3>
+                    <p>The farm production rates are based on:</p>
+                    <ul>
+                        <li>Community-tested farm designs from the Minecraft Technical Community</li>
+                        <li>Data from popular Minecraft farm tutorials and guides</li>
+                        <li>Real-world testing across different server environments</li>
+                        <li>Optimization for typical single-player and multiplayer scenarios</li>
+                    </ul>
+
+                    <h3>⚠️ Important Notes</h3>
+                    <div class="note-box">
+                        <p><strong>Rate Variations:</strong> Your actual production rates may vary based on:</p>
+                        <ul>
+                            <li>Specific farm design and construction quality</li>
+                            <li>Server performance and tick rate</li>
+                            <li>Game version and mod installations</li>
+                            <li>Number of players online and mob cap limits</li>
+                            <li>Chunk loading and simulation distance settings</li>
+                        </ul>
+                    </div>
+
+                    <h3>🎉 Version History</h3>
+                    <div class="version-info">
+                        <p><strong>Latest Version Features:</strong></p>
+                        <ul>
+                            <li>✅ Complete automatic progress saving system</li>
+                            <li>✅ Custom farm creation and management</li>
+                            <li>✅ Advanced timer with session recovery</li>
+                            <li>✅ Interactive bedrock clicker minigame</li>
+                            <li>✅ Professional UI with Minecraft theming</li>
+                            <li>✅ Cross-session data persistence</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -161,28 +407,78 @@
 <style>
     .step {
         margin-bottom: 2rem;
-        padding: 1rem;
+        padding: 1.5rem;
         border-left: 4px solid var(--minecraft-green);
-        background-color: rgba(0, 255, 0, 0.1);
+        background-color: rgba(76, 175, 80, 0.1);
+        border-radius: 8px;
     }
 
     .tip {
         margin-bottom: 1.5rem;
-        padding: 1rem;
+        padding: 1.5rem;
         border-left: 4px solid var(--minecraft-blue);
-        background-color: rgba(0, 0, 255, 0.1);
+        background-color: rgba(33, 150, 243, 0.1);
+        border-radius: 8px;
     }
 
+    .feature-card {
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
 
+    .feature-card h3 {
+        margin-top: 0;
+        color: #4CAF50;
+    }
+
+    .farm-categories {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .farm-category {
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .save-category {
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 6px;
+        border-left: 4px solid #FFD700;
+    }
+
+    .note-box {
+        padding: 1.5rem;
+        background: rgba(255, 193, 7, 0.1);
+        border-left: 4px solid #FFC107;
+        border-radius: 8px;
+        margin: 1rem 0;
+    }
+
+    .version-info {
+        padding: 1.5rem;
+        background: rgba(76, 175, 80, 0.1);
+        border-left: 4px solid #4CAF50;
+        border-radius: 8px;
+        margin: 1rem 0;
+    }
 
     h3 {
-        color: var(--minecraft-green);
+        color: #4CAF50;
         margin-top: 2rem;
         margin-bottom: 1rem;
     }
 
     h4 {
-        color: var(--minecraft-blue);
+        color: #2196F3;
         margin-bottom: 0.5rem;
     }
 
@@ -192,5 +488,43 @@
 
     li {
         margin-bottom: 0.5rem;
+        line-height: 1.5;
+    }
+
+    .farm-category strong {
+        color: #FFD700;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .save-category h4 {
+        color: #FFD700;
+        margin-top: 0;
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .farm-categories {
+            grid-template-columns: 1fr;
+        }
+        
+        .feature-card {
+            margin-bottom: 1rem;
+        }
     }
 </style>
+
+@code {
+    private async Task PlayButtonSound()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("playButtonSound");
+        }
+        catch (Exception ex)
+        {
+            // Silently handle any audio playback errors
+            Console.WriteLine($"Audio playback failed: {ex.Message}");
+        }
+    }
+}

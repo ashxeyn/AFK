@@ -11,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/minecraft-css-framework-v-1.0.0.css" />
     <link rel="stylesheet" href="css/custom-minecraft.css" />
+    <link rel="stylesheet" href="css/bedrock-clicker.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
 </head>
 
@@ -27,11 +28,8 @@
                 buttonAudio = new Audio('mcbuttonsfx.mp3');
                 buttonAudio.volume = 0.5;
                 buttonAudio.preload = 'auto';
-                // Pre-load by playing and immediately pausing
-                buttonAudio.play().then(() => {
-                    buttonAudio.pause();
-                    buttonAudio.currentTime = 0;
-                }).catch(e => console.log('Audio pre-load failed:', e));
+                // Load the audio without playing it
+                buttonAudio.load();
             } catch (e) {
                 console.log('Audio initialization failed:', e);
             }
@@ -42,11 +40,8 @@
                 completionAudio = new Audio('lavachicken.mp3');
                 completionAudio.volume = 0.7;
                 completionAudio.preload = 'auto';
-                // Pre-load by playing and immediately pausing
-                completionAudio.play().then(() => {
-                    completionAudio.pause();
-                    completionAudio.currentTime = 0;
-                }).catch(e => console.log('Completion audio pre-load failed:', e));
+                // Load the audio without playing it
+                completionAudio.load();
             } catch (e) {
                 console.log('Completion audio initialization failed:', e);
             }
@@ -111,6 +106,105 @@
             }
         };
         
+        // LocalStorage functions for custom farms
+        window.saveCustomFarms = (customFarmsJson) => {
+            try {
+                localStorage.setItem('mcafk_customFarms', customFarmsJson);
+                console.log('Custom farms saved to localStorage');
+            } catch (e) {
+                console.log('Failed to save custom farms:', e);
+            }
+        };
+        
+        window.loadCustomFarms = () => {
+            try {
+                const customFarmsJson = localStorage.getItem('mcafk_customFarms');
+                if (customFarmsJson) {
+                    console.log('Custom farms loaded from localStorage');
+                    return customFarmsJson;
+                }
+                return null;
+            } catch (e) {
+                console.log('Failed to load custom farms:', e);
+                return null;
+            }
+        };
+        
+        window.clearCustomFarms = () => {
+            try {
+                localStorage.removeItem('mcafk_customFarms');
+                console.log('Custom farms cleared from localStorage');
+            } catch (e) {
+                console.log('Failed to clear custom farms:', e);
+            }
+        };
+        
+        // LocalStorage functions for complete application state
+        window.saveAppState = (appStateJson) => {
+            try {
+                localStorage.setItem('mcafk_appState', appStateJson);
+                console.log('App state saved to localStorage');
+            } catch (e) {
+                console.log('Failed to save app state:', e);
+            }
+        };
+        
+        window.loadAppState = () => {
+            try {
+                const appStateJson = localStorage.getItem('mcafk_appState');
+                if (appStateJson) {
+                    console.log('App state loaded from localStorage');
+                    return appStateJson;
+                }
+                return null;
+            } catch (e) {
+                console.log('Failed to load app state:', e);
+                return null;
+            }
+        };
+        
+        window.clearAppState = () => {
+            try {
+                localStorage.removeItem('mcafk_appState');
+                console.log('App state cleared from localStorage');
+            } catch (e) {
+                console.log('Failed to clear app state:', e);
+            }
+        };
+        
+        // LocalStorage functions for clicker game state
+        window.saveClickerState = (clickerStateJson) => {
+            try {
+                localStorage.setItem('mcafk_clickerState', clickerStateJson);
+                console.log('Clicker state saved to localStorage');
+            } catch (e) {
+                console.log('Failed to save clicker state:', e);
+            }
+        };
+        
+        window.loadClickerState = () => {
+            try {
+                const clickerStateJson = localStorage.getItem('mcafk_clickerState');
+                if (clickerStateJson) {
+                    console.log('Clicker state loaded from localStorage');
+                    return clickerStateJson;
+                }
+                return null;
+            } catch (e) {
+                console.log('Failed to load clicker state:', e);
+                return null;
+            }
+        };
+        
+        window.clearClickerState = () => {
+            try {
+                localStorage.removeItem('mcafk_clickerState');
+                console.log('Clicker state cleared from localStorage');
+            } catch (e) {
+                console.log('Failed to clear clicker state:', e);
+            }
+        };
+
         // Initialize audio when page loads
         document.addEventListener('DOMContentLoaded', () => {
             window.initButtonSound();
