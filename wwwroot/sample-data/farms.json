@@ -1,5 +1,31 @@
-{
-  "Iron": 3600,
-  "Gold": 1800,
-  "Crop": 1200
-} 
+[
+  { "name": "Iron Farm", "rate": 120, "icon": "🔩" },
+  { "name": "Gold Farm", "rate": 80, "icon": "🥇" },
+  { "name": "Crop Farm", "rate": 200, "icon": "🌾" },
+  { "name": "Mob Farm", "rate": 150, "icon": "👾" },
+  { "name": "Skeleton Farm", "rate": 180, "icon": "💀" },
+  { "name": "Spider Farm", "rate": 160, "icon": "🕷️" },
+  { "name": "Zombie Farm", "rate": 140, "icon": "🧟" },
+  { "name": "Creeper Farm", "rate": 90, "icon": "💥" },
+  { "name": "Enderman Farm", "rate": 300, "icon": "👤" },
+  { "name": "Blaze Farm", "rate": 250, "icon": "🔥" },
+  { "name": "Guardian Farm", "rate": 400, "icon": "🐟" },
+  { "name": "Witch Farm", "rate": 100, "icon": "🧙" },
+  { "name": "Slime Farm", "rate": 110, "icon": "🟢" },
+  { "name": "Cow Farm", "rate": 100, "icon": "🐄" },
+  { "name": "Pig Farm", "rate": 95, "icon": "🐷" },
+  { "name": "Chicken Farm", "rate": 110, "icon": "🐔" },
+  { "name": "Sheep Farm", "rate": 85, "icon": "🐑" },
+  { "name": "Cod Farm", "rate": 130, "icon": "🦆" },
+  { "name": "Salmon Farm", "rate": 125, "icon": "🐟" },
+  { "name": "Tropical Fish Farm", "rate": 75, "icon": "🐠" },
+  { "name": "Pufferfish Farm", "rate": 70, "icon": "🐡" },
+  { "name": "Tree Farm", "rate": 300, "icon": "🌳" },
+  { "name": "Kelp Farm", "rate": 250, "icon": "🌱" },
+  { "name": "Mushroom Farm", "rate": 180, "icon": "🍄" },
+  { "name": "Bamboo Farm", "rate": 300, "icon": "🎋" },
+  { "name": "Cactus Farm", "rate": 150, "icon": "🌵" },
+  { "name": "Honey Farm", "rate": 45, "icon": "🍯" },
+  { "name": "Wax Farm", "rate": 40, "icon": "🕯️" },
+  { "name": "Villager Farm", "rate": 50, "icon": "👨‍🌾" }
+]

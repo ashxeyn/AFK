@@ -1,5 +1,6 @@
 @page "/"
 @inject IJSRuntime JSRuntime
+@inject HttpClient Http
 @using System.Linq
 
 <PageTitle>MC AFK Tracker</PageTitle>
@@ -15,7 +16,6 @@
     }
 </style>
 
-<!-- Navigation using Minecraft CSS Framework -->
 <nav class="navbar">
     <ul class="navbar-nav">
         <li><a href="/" @onclick="PlayButtonSound">Home</a></li>
@@ -24,9 +24,7 @@
     </ul>
 </nav>
 
-<!-- Main Content using Minecraft CSS Framework -->
 <div class="container">
-    <!-- Hero Section -->
     <div class="row">
         <div class="col-12">
             <div class="hero-section">
@@ -36,11 +34,9 @@
         </div>
     </div>
 
-    <!-- Main Grid Layout - 2x2 Grid -->
     <div class="row" style="margin-bottom: 2rem;">
         <div class="col-12">
             <div class="grid" style="gap: 2rem;">
-                <!-- Top Left - Farm Configuration (Always visible) -->
                 <div class="col-6">
                     <div class="card" style="margin-bottom: 2rem;">
                         <div class="card-header">
@@ -58,57 +54,15 @@
                                     {
                                         <select value="@selectedFarm" @onfocus="PlayButtonSound" @onchange="OnFarmSelectionChange" class="form-input" style="flex: 1;">
                                             <option value="">Select your farm type...</option>
-
-                                            <!-- Custom -->
                                             <option value="Custom">🔧 Custom Farm</option>
-                                            
-                                            <!-- Saved Custom Farms -->
                                             @foreach (var customFarm in farmTypes.Where(f => f.Value.Color == "custom").OrderBy(f => f.Key))
                                             {
-                                                <option value="@customFarm.Key" class="custom-farm-option">@customFarm.Key (@customFarm.Value.Rate items/5min)</option>
+                                                <option value="@customFarm.Key" class="custom-farm-option">@customFarm.Key (@customFarm.Value.Rate items/@customFarm.Value.TimeFrameMinutes min)</option>
                                             }
-                                            
-                                            <!-- Basic Farms -->
-                                            <option value="Iron Farm">🔩 Iron Farm (120 items/5min)</option>
-                                            <option value="Gold Farm">🥇 Gold Farm (80 items/5min)</option>
-                                            <option value="Crop Farm">🌾 Crop Farm (200 items/5min)</option>
-                                            <option value="Mob Farm">👾 Mob Farm (150 items/5min)</option>
-                                            
-                                            <!-- Hostile Mob Farms -->
-                                            <option value="Skeleton Farm">💀 Skeleton Farm (180 items/5min)</option>
-                                            <option value="Spider Farm">🕷️ Spider Farm (160 items/5min)</option>
-                                            <option value="Zombie Farm">🧟 Zombie Farm (140 items/5min)</option>
-                                            <option value="Creeper Farm">💥 Creeper Farm (90 items/5min)</option>
-                                            <option value="Enderman Farm">👤 Enderman Farm (300 items/5min)</option>
-                                            <option value="Blaze Farm">🔥 Blaze Farm (250 items/5min)</option>
-                                            <option value="Guardian Farm">🐟 Guardian Farm (400 items/5min)</option>
-                                            <option value="Witch Farm">🧙 Witch Farm (100 items/5min)</option>
-                                            <option value="Slime Farm">🟢 Slime Farm (110 items/5min)</option>
-                                            
-                                            <!-- Passive Mob Farms -->
-                                            <option value="Cow Farm">🐄 Cow Farm (100 items/5min)</option>
-                                            <option value="Pig Farm">🐷 Pig Farm (95 items/5min)</option>
-                                            <option value="Chicken Farm">🐔 Chicken Farm (110 items/5min)</option>
-                                            <option value="Sheep Farm">🐑 Sheep Farm (85 items/5min)</option>
-                                            
-                                            <!-- Fish Farms -->
-                                            <option value="Cod Farm">🦆 Cod Farm (130 items/5min)</option>
-                                            <option value="Salmon Farm">🐟 Salmon Farm (125 items/5min)</option>
-                                            <option value="Tropical Fish Farm">🐠 Tropical Fish Farm (75 items/5min)</option>
-                                            <option value="Pufferfish Farm">🐡 Pufferfish Farm (70 items/5min)</option>
-                                            
-                                            <!-- Plant Farms -->
-                                            <option value="Tree Farm">🌳 Tree Farm (300 logs/5min)</option>
-                                            <option value="Kelp Farm">🌱 Kelp Farm (250 items/5min)</option>
-                                            <option value="Mushroom Farm">🍄 Mushroom Farm (180 items/5min)</option>
-                                            <option value="Bamboo Farm">🎋 Bamboo Farm (300 items/5min)</option>
-                                            <option value="Cactus Farm">🌵 Cactus Farm (150 items/5min)</option>
-                                            
-                                            <!-- Specialized Farms -->
-                                            <option value="Honey Farm">🍯 Honey Farm (45 items/5min)</option>
-                                            <option value="Wax Farm">🕯️ Wax Farm (40 items/5min)</option>
-                                            <option value="Villager Farm">👨‍🌾 Villager Trading (50 trades/5min)</option>
-                                            
+                                            @foreach (var farm in defaultFarms)
+                                            {
+                                                <option value="@farm.Name">@farm.Icon @farm.Name (@farm.Rate items/5min)</option>
+                                            }
                                         </select>
                                     }
                                     @if (isCreatingCustomFarm)
@@ -123,7 +77,6 @@
                                             Custom
                                         </button>
                                     }
-                                    @* Show delete button only for selected custom farms *@
                                     @if (!isCreatingCustomFarm && !string.IsNullOrEmpty(selectedFarm) && farmTypes.ContainsKey(selectedFarm) && farmTypes[selectedFarm].Color == "custom")
                                     {
                                         <button @onclick="DeleteCustomFarmWithSound" class="button button-danger" style="padding: 0.5rem 0.75rem; min-width: auto; color: #FF6B6B; background: rgba(255, 107, 107, 0.1); border: 1px solid #FF6B6B;" title="Delete Custom Farm">
@@ -140,14 +93,12 @@
                                     <div class="text-secondary">@farmTypes[selectedFarm].Description</div>
                                 }
                             </div>
-                            
                             <div class="form-group">
                                 <label class="form-label">Target Items</label>
                                 <input type="number" @bind="targetQuantity" @bind:event="oninput" @onchange="OnTargetQuantityChanged" min="1" max="1000000" 
                                        placeholder="Enter target quantity (e.g., 1000)" 
                                        class="form-input" />
                             </div>
-                            
                             <div class="form-group" style="margin-top: 2rem;">
                                 <label class="form-label">Production Rate</label>
                                 <input type="number" @bind="dropsPer5Minutes" min="1" max="10000" 
@@ -155,12 +106,21 @@
                                        disabled="@(!isCustomFarm && !isCreatingCustomFarm)"
                                        class="form-input" />
                             </div>
+                            @if (isCustomFarm || isCreatingCustomFarm)
+                            {
+                                <div class="form-group" style="margin-top: 1rem;">
+                                    <label class="form-label">Time Frame (minutes)</label>
+                                    <input type="number" @bind="customTimeFrameMinutes" min="1" max="60" 
+                                           placeholder="Time frame in minutes (e.g., 5)" 
+                                           class="form-input" />
+                                </div>
+                            }
                         </div>
                         <div class="card-footer">
                             <div style="display: flex; gap: 0.5rem; align-items: center;">
                                 @if (isCreatingCustomFarm)
                                 {
-                                    <button @onclick="SaveCustomFarmWithSound" class="button button-primary" disabled="@(string.IsNullOrEmpty(customFarmName) || dropsPer5Minutes <= 0)" style="flex: 1;">
+                                    <button @onclick="SaveCustomFarmWithSound" class="button button-primary" style="flex: 1;">
                                         Save Custom Farm
                                     </button>
                                 }
@@ -178,18 +138,14 @@
                                     </button>
                                 }
                             </div>
-
-                            
                             @if (!string.IsNullOrEmpty(errorMessage))
                             {
                                 <div style="color: #FF6B6B; background: rgba(255, 107, 107, 0.1); padding: 0.75rem; border-radius: 4px; margin-top: 1rem; text-align: left; border-left: 3px solid #FF6B6B;">
                                     ❌ @errorMessage
                                 </div>
                             }
-                            
                             @if (showResult)
                             {
-                                <!-- Farm Analysis Results -->
                                 <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 4px;">
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: left;">
                                         <div>
@@ -214,12 +170,9 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- Top Right - Timer (Only visible after calculation) OR Welcome (Before calculation) -->
                 <div class="col-6">
                     @if (!showResult)
                     {
-                        <!-- Welcome Image/Info -->
                         <div class="card" style="margin-bottom: 2rem;">
                             <div class="card-body text-center">
                                 <div style="margin-bottom: 2rem; margin-top: 1rem;">
@@ -237,13 +190,11 @@
                     }
                     else
                     {
-                        <!-- AFK Timer & Progress -->
                         <div class="card" style="margin-bottom: 2rem; min-height: 400px;">
                             <div class="card-header">
                                 <h2><img src="mcclock.png" alt="Timer" style="width: 40px; height: 40px; vertical-align: middle; margin-right: 12px;" /> AFK Timer & Progress</h2>
                             </div>
                             <div class="card-body text-center">
-                                <!-- Timer Display -->
                                 <div class="result-display">
                                     @if (timerCompleted)
                                     {
@@ -280,8 +231,6 @@
                                         </div>
                                     }
                                 </div>
-                                
-                                <!-- Timer Controls -->
                                 <div class="button-group">
                                     @if (timerCompleted)
                                     {
@@ -306,58 +255,22 @@
                         </div>
                     }
                 </div>
-                
-
             </div>
         </div>
     </div>
 </div>
 
 @code {
-    // Enhanced farm types with more detailed information
-    private Dictionary<string, FarmInfo> farmTypes = new()
+    private class FarmJsonModel
     {
-        // Basic Farms
-        { "Iron Farm", new FarmInfo { Rate = 120, Icon = "🔩", Color = "iron", Description = "Iron golem farm producing iron ingots" } },
-        { "Gold Farm", new FarmInfo { Rate = 80, Icon = "🥇", Color = "gold", Description = "Zombified piglin farm in the Nether" } },
-        { "Crop Farm", new FarmInfo { Rate = 200, Icon = "🌾", Color = "crop", Description = "Automated crop harvester for wheat, carrots, potatoes" } },
-        { "Mob Farm", new FarmInfo { Rate = 150, Icon = "👾", Color = "mob", Description = "General mob spawner farm" } },
-        
-        // Hostile Mob Farms
-        { "Skeleton Farm", new FarmInfo { Rate = 180, Icon = "💀", Color = "skeleton", Description = "Skeleton spawner farm for bones and arrows" } },
-        { "Spider Farm", new FarmInfo { Rate = 160, Icon = "🕷️", Color = "spider", Description = "Spider spawner farm for string and spider eyes" } },
-        { "Zombie Farm", new FarmInfo { Rate = 140, Icon = "🧟", Color = "zombie", Description = "Zombie spawner farm for rotten flesh and iron" } },
-        { "Creeper Farm", new FarmInfo { Rate = 90, Icon = "💥", Color = "creeper", Description = "Creeper spawner farm for gunpowder" } },
-        { "Enderman Farm", new FarmInfo { Rate = 300, Icon = "👤", Color = "enderman", Description = "End-based enderman farm for ender pearls" } },
-        { "Blaze Farm", new FarmInfo { Rate = 250, Icon = "🔥", Color = "blaze", Description = "Nether fortress blaze farm for blaze rods" } },
-        { "Guardian Farm", new FarmInfo { Rate = 400, Icon = "🐟", Color = "guardian", Description = "Ocean monument guardian farm" } },
-        { "Witch Farm", new FarmInfo { Rate = 100, Icon = "🧙", Color = "witch", Description = "Witch hut farm for redstone and glowstone" } },
-        { "Slime Farm", new FarmInfo { Rate = 110, Icon = "🟢", Color = "slime", Description = "Slime chunk or swamp farm for slimeballs" } },
-        
-        // Passive Mob Farms
-        { "Cow Farm", new FarmInfo { Rate = 100, Icon = "🐄", Color = "cow", Description = "Cow breeding farm for leather and beef" } },
-        { "Pig Farm", new FarmInfo { Rate = 95, Icon = "🐷", Color = "pig", Description = "Pig breeding farm for porkchops" } },
-        { "Chicken Farm", new FarmInfo { Rate = 110, Icon = "🐔", Color = "chicken", Description = "Chicken breeding farm for feathers and meat" } },
-        { "Sheep Farm", new FarmInfo { Rate = 85, Icon = "🐑", Color = "sheep", Description = "Sheep farm for wool and mutton" } },
-        
-        // Fish Farms
-        { "Cod Farm", new FarmInfo { Rate = 130, Icon = "🦆", Color = "cod", Description = "AFK fish farm for cod" } },
-        { "Salmon Farm", new FarmInfo { Rate = 125, Icon = "🐟", Color = "salmon", Description = "AFK fish farm for salmon" } },
-        { "Tropical Fish Farm", new FarmInfo { Rate = 75, Icon = "🐠", Color = "tropical", Description = "AFK fish farm for tropical fish" } },
-        { "Pufferfish Farm", new FarmInfo { Rate = 70, Icon = "🐡", Color = "puffer", Description = "AFK fish farm for pufferfish" } },
-        
-        // Plant Farms
-        { "Tree Farm", new FarmInfo { Rate = 300, Icon = "🌳", Color = "tree", Description = "TNT tree farm for logs and saplings" } },
-        { "Kelp Farm", new FarmInfo { Rate = 250, Icon = "🌱", Color = "kelp", Description = "Ocean kelp farm with flying machines" } },
-        { "Mushroom Farm", new FarmInfo { Rate = 180, Icon = "🍄", Color = "mushroom", Description = "Huge mushroom farm in dark areas" } },
-        { "Bamboo Farm", new FarmInfo { Rate = 300, Icon = "🎋", Color = "bamboo", Description = "Bamboo farm with observer blocks" } },
-        { "Cactus Farm", new FarmInfo { Rate = 150, Icon = "🌵", Color = "cactus", Description = "Desert cactus farm with water collection" } },
-        
-        // Specialized Farms
-        { "Honey Farm", new FarmInfo { Rate = 45, Icon = "🍯", Color = "honey", Description = "Bee farm for honey bottles" } },
-        { "Wax Farm", new FarmInfo { Rate = 40, Icon = "🕯️", Color = "wax", Description = "Bee farm for honeycomb and wax" } },
-        { "Villager Farm", new FarmInfo { Rate = 50, Icon = "👨‍🌾", Color = "villager", Description = "Automated villager trading system" } }
-    };
+        public string Name { get; set; } = string.Empty;
+        public int Rate { get; set; }
+        public string Icon { get; set; } = string.Empty;
+    }
+
+    private List<FarmJsonModel> defaultFarms = new();
+
+    private Dictionary<string, FarmInfo> farmTypes = new();
     
     private class FarmInfo
     {
@@ -366,6 +279,7 @@
         public string Color { get; set; } = "";
         public string Description { get; set; } = "";
         public int TargetQuantity { get; set; } = 0;
+        public int TimeFrameMinutes { get; set; } = 5;
     }
     
     private class AppState
@@ -378,8 +292,6 @@
         public int DropsPerHour { get; set; } = 0;
         public int Hours { get; set; } = 0;
         public int Minutes { get; set; } = 0;
-        
-        // Timer state
         public bool TimerRunning { get; set; } = false;
         public bool TimerPaused { get; set; } = false;
         public bool TimerCompleted { get; set; } = false;
@@ -401,18 +313,14 @@
     private int dropsPerHour = 0;
     private int hours = 0;
     private int minutes = 0;
-    
-    // Timer functionality
     private bool timerRunning = false;
     private bool timerPaused = false;
     private bool timerCompleted = false;
     private int timeRemaining = 0;
-    private int totalTime = 0; // Store original time for restart functionality
+    private int totalTime = 0;
     private Timer? countdownTimer;
-    
-    // Dark mode functionality
     private bool isDarkMode = false;
-
+    private int customTimeFrameMinutes = 0;
     private string SelectedFarm
     {
         get => selectedFarm;
@@ -425,85 +333,93 @@
 
     private async Task OnFarmSelectionChange(ChangeEventArgs e)
     {
-        await PlayButtonSound(); // Play sound when selection changes
+        await PlayButtonSound();
         selectedFarm = e.Value?.ToString() ?? "";
         OnFarmTypeChanged();
-        await SaveAppState(); // Save state when farm selection changes
+        await SaveAppState();
     }
 
     private void OnFarmTypeChanged()
     {
+        errorMessage = string.Empty;
         if (string.IsNullOrEmpty(selectedFarm))
         {
             targetQuantity = 0;
             dropsPer5Minutes = 0;
             isCustomFarm = false;
             showResult = false;
+            customFarmName = "";
+            customTimeFrameMinutes = 0;
             return;
         }
-
         if (selectedFarm == "Custom")
         {
             targetQuantity = 0;
             dropsPer5Minutes = 0;
             isCustomFarm = true;
             showResult = false;
+            customFarmName = "";
+            customTimeFrameMinutes = 0;
+            return;
         }
         else if (farmTypes.ContainsKey(selectedFarm))
         {
             var farmInfo = farmTypes[selectedFarm];
             if (farmInfo.Color == "custom")
             {
-                // For custom farms, restore saved target quantity
                 targetQuantity = farmInfo.TargetQuantity;
+                customTimeFrameMinutes = farmInfo.TimeFrameMinutes;
+                customFarmName = selectedFarm;
             }
             else
             {
-                // For predefined farms, reset target quantity
                 targetQuantity = 0;
+                customTimeFrameMinutes = 5;
+                customFarmName = "";
+                dropsPer5Minutes = 0;
             }
             dropsPer5Minutes = farmInfo.Rate;
             isCustomFarm = farmInfo.Color == "custom";
             showResult = false;
-            dropsPerHour = dropsPer5Minutes * 12; // Update immediately for display
+            dropsPerHour = isCustomFarm ? (int)(dropsPer5Minutes * (60.0 / customTimeFrameMinutes)) : dropsPer5Minutes * 12;
         }
     }
 
     private async Task CalculateAfkTimeWithSound()
     {
-        _ = PlayButtonSound(); // Fire and forget - don't wait
+        _ = PlayButtonSound();
         await CalculateAfkTime();
     }
     
     private async Task StartTimerWithSound()
     {
-        await PlayButtonSound(); // Wait for sound to play
+        await PlayButtonSound();
         StartTimer();
     }
     
     private async Task PauseTimerWithSound()
     {
-        await PlayButtonSound(); // Wait for sound to play
+        await PlayButtonSound();
         PauseTimer();
     }
     
     private async Task ResumeTimerWithSound()
     {
-        await PlayButtonSound(); // Wait for sound to play
+        await PlayButtonSound();
         ResumeTimer();
     }
     
     private async Task StopTimerWithSound()
     {
-        await PlayButtonSound(); // Wait for sound to play
+        await PlayButtonSound();
         StopTimer();
     }
     
     private async Task ResetTimerWithSound()
     {
-        await PlayButtonSound(); // Wait for button sound to play
-        await StopCompletionSound(); // Stop the completion sound first
-        ResetTimer(); // Reset the timer
+        await PlayButtonSound();
+        await StopCompletionSound();
+        ResetTimer();
     }
     
     private async Task CalculateAfkTime()
@@ -511,49 +427,50 @@
         errorMessage = string.Empty;
         showResult = false;
         isCalculating = true;
-        
-        // Simulate calculation delay for better UX
         await Task.Delay(500);
-        
         if (string.IsNullOrEmpty(selectedFarm))
         {
             errorMessage = "Please select a farm type.";
             isCalculating = false;
             return;
         }
-        
         if (targetQuantity <= 0)
         {
             errorMessage = "Please enter a valid number of items you want.";
             isCalculating = false;
             return;
         }
-        
         if (dropsPer5Minutes <= 0)
         {
             errorMessage = "Please enter a valid number of drops per 5 minutes.";
             isCalculating = false;
             return;
         }
-        
-        dropsPerHour = dropsPer5Minutes * 12;
-        
+        if (isCustomFarm || isCreatingCustomFarm)
+        {
+            if (customTimeFrameMinutes <= 0)
+            {
+                errorMessage = "Please enter a valid time frame in minutes.";
+                isCalculating = false;
+                return;
+            }
+            dropsPerHour = (int)(dropsPer5Minutes * (60.0 / customTimeFrameMinutes));
+        }
+        else
+        {
+            dropsPerHour = dropsPer5Minutes * 12;
+        }
         double totalMinutes = (double)targetQuantity / dropsPerHour * 60;
         totalMinutes = Math.Ceiling(totalMinutes);
-        
         hours = (int)(totalMinutes / 60);
         minutes = (int)(totalMinutes % 60);
-        
         isCalculating = false;
         showResult = true;
-        
-        // Save app state after calculation
         await SaveAppState();
     }
     
     private string GetFarmThemeClass()
     {
-        // No longer needed for modern UI
         return "";
     }
     
@@ -583,7 +500,6 @@
     
     private string GetEfficiencyClass()
     {
-        // No longer needed for modern UI
         return "";
     }
     
@@ -591,15 +507,14 @@
     {
         if (timerRunning || timerPaused) return;
         
-        timeRemaining = hours * 3600 + minutes * 60; // Convert to seconds
-        totalTime = timeRemaining; // Store for restart
+        timeRemaining = hours * 3600 + minutes * 60;
+        totalTime = timeRemaining;
         timerRunning = true;
         timerPaused = false;
         timerCompleted = false;
         
         countdownTimer = new Timer(UpdateTimer, null, 0, 1000);
         
-        // Save app state when timer starts
         await SaveAppState();
     }
     
@@ -612,7 +527,6 @@
         countdownTimer?.Dispose();
         countdownTimer = null;
         
-        // Save app state when timer pauses
         await SaveAppState();
     }
     
@@ -625,7 +539,6 @@
         
         countdownTimer = new Timer(UpdateTimer, null, 0, 1000);
         
-        // Save app state when timer resumes
         await SaveAppState();
     }
     
@@ -636,9 +549,8 @@
         timerCompleted = false;
         countdownTimer?.Dispose();
         countdownTimer = null;
-        timeRemaining = totalTime; // Reset to original time
+        timeRemaining = totalTime;
         
-        // Save app state when timer stops
         await SaveAppState();
     }
     
@@ -649,9 +561,8 @@
         timerCompleted = false;
         countdownTimer?.Dispose();
         countdownTimer = null;
-        timeRemaining = totalTime; // Reset to original time
+        timeRemaining = totalTime;
         
-        // Save app state when timer resets
         await SaveAppState();
     }
     
@@ -669,11 +580,10 @@
             countdownTimer?.Dispose();
             countdownTimer = null;
             
-            // Play completion sound when timer finishes - ensure it runs on UI thread
             await InvokeAsync(async () =>
             {
                 await PlayCompletionSound();
-                await SaveAppState(); // Save state when timer completes
+                await SaveAppState();
                 StateHasChanged();
             });
         }
@@ -691,7 +601,6 @@
     {
         isDarkMode = !isDarkMode;
         
-        // Apply dark mode to the body element
         if (isDarkMode)
         {
             await JSRuntime.InvokeVoidAsync("document.body.classList.add", "dark-mode");
@@ -710,7 +619,6 @@
         }
         catch (Exception ex)
         {
-            // Silently handle any audio playback errors
             Console.WriteLine($"Audio playback failed: {ex.Message}");
         }
     }
@@ -725,7 +633,6 @@
         }
         catch (Exception ex)
         {
-            // Silently handle any audio playback errors
             Console.WriteLine($"Completion audio playback failed: {ex.Message}");
         }
     }
@@ -740,22 +647,41 @@
         }
         catch (Exception ex)
         {
-            // Silently handle any audio stop errors
             Console.WriteLine($"Completion audio stop failed: {ex.Message}");
         }
+    }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        var farms = await Http.GetFromJsonAsync<List<FarmJsonModel>>("sample-data/farms.json");
+        if (farms != null)
+        {
+            defaultFarms = farms;
+            foreach (var farm in defaultFarms)
+            {
+                farmTypes[farm.Name] = new FarmInfo
+                {
+                    Rate = farm.Rate,
+                    Icon = farm.Icon,
+                    Color = farm.Name.ToLower().Contains("farm") ? farm.Name.ToLower().Split(' ')[0] : "default",
+                    Description = $"{farm.Name} ({farm.Rate} items/5min)",
+                    TargetQuantity = 0,
+                    TimeFrameMinutes = 5
+                };
+            }
+        }
+        await base.OnInitializedAsync();
     }
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            // Set initial dark mode state if needed
             if (isDarkMode)
             {
                 await JSRuntime.InvokeVoidAsync("document.body.classList.add", "dark-mode");
             }
             
-            // Load custom farms and complete app state from localStorage
             await LoadCustomFarms();
             await LoadAppState();
         }
@@ -768,72 +694,66 @@
 
     private async Task AddCustomFarmWithSound()
     {
-        await PlayButtonSound(); // Play button sound
+        await PlayButtonSound();
         isCreatingCustomFarm = true;
         customFarmName = "";
         dropsPer5Minutes = 0;
-        // Don't reset targetQuantity - keep the user's input
+        customTimeFrameMinutes = 0;
+        targetQuantity = 0;
         showResult = false;
+        errorMessage = string.Empty;
     }
     
     private async Task CancelCustomFarmWithSound()
     {
-        await PlayButtonSound(); // Play button sound
+        await PlayButtonSound();
         isCreatingCustomFarm = false;
         customFarmName = "";
+        dropsPer5Minutes = 0;
+        customTimeFrameMinutes = 0;
+        targetQuantity = 0;
         selectedFarm = "";
         isCustomFarm = false;
-        dropsPer5Minutes = 0;
-        targetQuantity = 0;
         showResult = false;
+        errorMessage = string.Empty;
     }
     
     private async Task SaveCustomFarmWithSound()
     {
-        await PlayButtonSound(); // Play button sound
-        
-        if (string.IsNullOrEmpty(customFarmName) || dropsPer5Minutes <= 0)
+        await PlayButtonSound();
+        errorMessage = string.Empty;
+        if (string.IsNullOrEmpty(customFarmName) || dropsPer5Minutes <= 0 || customTimeFrameMinutes <= 0)
         {
-            errorMessage = "Please enter a farm name and production rate.";
+            if (string.IsNullOrEmpty(customFarmName))
+                errorMessage = "Please enter a farm name.";
+            else if (dropsPer5Minutes <= 0)
+                errorMessage = "Please enter a valid production rate.";
+            else if (customTimeFrameMinutes <= 0)
+                errorMessage = "Please enter a valid time frame in minutes.";
             return;
         }
-        
-        // Add the custom farm to the dictionary
-        farmTypes[customFarmName] = new FarmInfo 
-        { 
-            Rate = dropsPer5Minutes, 
-            Icon = "", 
-            Color = "custom", 
-            Description = $"Custom farm: {customFarmName} - {dropsPer5Minutes} items per 5 minutes",
-            TargetQuantity = targetQuantity
+        farmTypes[customFarmName] = new FarmInfo
+        {
+            Rate = dropsPer5Minutes,
+            Icon = "🔧",
+            Color = "custom",
+            Description = $"Custom farm: {customFarmName} - {dropsPer5Minutes} items per {customTimeFrameMinutes} minutes",
+            TargetQuantity = targetQuantity,
+            TimeFrameMinutes = customTimeFrameMinutes
         };
-        
-        // Set the selected farm to the new custom farm
+        isCreatingCustomFarm = false;
         selectedFarm = customFarmName;
         isCustomFarm = true;
-        isCreatingCustomFarm = false;
-        
-        // Clear error message
+        showResult = false;
         errorMessage = string.Empty;
-        
-        // Update drops per hour
-        dropsPerHour = dropsPer5Minutes * 12;
-        
-        // Clear the custom farm name for next use (but keep targetQuantity)
-        customFarmName = "";
-        
-        // Save to localStorage
-        await SaveCustomFarms();
         await SaveAppState();
-        
-        // Don't reset targetQuantity - keep the user's input
     }
     
     private async Task DeleteCustomFarmWithSound()
     {
         await PlayButtonSound();
         DeleteCustomFarm();
-        await SaveCustomFarms(); // Save to localStorage after deletion
+        await SaveCustomFarms();
     }
     
     private void DeleteCustomFarm()
@@ -843,28 +763,23 @@
             return;
         }
         
-        // Only allow deletion of custom farms
         if (farmTypes[selectedFarm].Color != "custom")
         {
             return;
         }
         
-        // Remove the custom farm from the dictionary
         farmTypes.Remove(selectedFarm);
         
-        // Reset the selected farm to the default "Iron Farm"
         selectedFarm = "Iron Farm";
         isCustomFarm = false;
         
-        // Update the form with the default farm's values
         if (farmTypes.ContainsKey("Iron Farm"))
         {
             dropsPerHour = farmTypes["Iron Farm"].Rate * 12;
             dropsPer5Minutes = farmTypes["Iron Farm"].Rate;
-            targetQuantity = 1000; // Reset to default
+            targetQuantity = 1000;
         }
         
-        // Clear any error messages
         errorMessage = string.Empty;
     }
     
@@ -872,13 +787,10 @@
     {
         try
         {
-            // Get only custom farms from the dictionary
             var customFarms = farmTypes.Where(f => f.Value.Color == "custom").ToDictionary(f => f.Key, f => f.Value);
             
-            // Serialize to JSON
             var json = System.Text.Json.JsonSerializer.Serialize(customFarms);
             
-            // Save to localStorage
             await JSRuntime.InvokeVoidAsync("saveCustomFarms", json);
         }
         catch (Exception ex)
@@ -923,23 +835,19 @@
     {
         try
         {
-            // Load from localStorage
             var json = await JSRuntime.InvokeAsync<string>("loadCustomFarms");
             
             if (!string.IsNullOrEmpty(json))
             {
-                // Deserialize from JSON
                 var customFarms = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, FarmInfo>>(json);
                 
                 if (customFarms != null)
                 {
-                    // Add custom farms to the existing dictionary
                     foreach (var farm in customFarms)
                     {
                         farmTypes[farm.Key] = farm.Value;
                     }
                     
-                    // Update the UI
                     StateHasChanged();
                 }
             }
@@ -962,7 +870,6 @@
                 
                 if (appState != null)
                 {
-                    // Restore form state
                     selectedFarm = appState.SelectedFarm;
                     targetQuantity = appState.TargetQuantity;
                     dropsPer5Minutes = appState.DropsPer5Minutes;
@@ -972,11 +879,9 @@
                     hours = appState.Hours;
                     minutes = appState.Minutes;
                     
-                    // Restore timer state
                     timerCompleted = appState.TimerCompleted;
                     totalTime = appState.TotalTime;
                     
-                    // Handle running timer restoration
                     if (appState.TimerRunning && appState.TimerStartTime.HasValue)
                     {
                         var elapsed = DateTime.Now - appState.TimerStartTime.Value;
@@ -988,12 +893,10 @@
                             timerRunning = true;
                             timerPaused = false;
                             
-                            // Restart the timer
                             countdownTimer = new Timer(UpdateTimer, null, 0, 1000);
                         }
                         else
                         {
-                            // Timer should have completed
                             timeRemaining = 0;
                             timerRunning = false;
                             timerPaused = false;
@@ -1028,17 +931,14 @@
     {
         try
         {
-            // Remove all custom farms from the dictionary
             var customFarmKeys = farmTypes.Where(f => f.Value.Color == "custom").Select(f => f.Key).ToList();
             foreach (var key in customFarmKeys)
             {
                 farmTypes.Remove(key);
             }
             
-            // Clear localStorage
             await JSRuntime.InvokeVoidAsync("clearCustomFarms");
             
-            // Reset UI state
             selectedFarm = "";
             isCustomFarm = false;
             targetQuantity = 0;
@@ -1056,14 +956,12 @@
     
     private async Task OnTargetQuantityChanged()
     {
-        // If this is a custom farm, save the updated target quantity
         if (isCustomFarm && !string.IsNullOrEmpty(selectedFarm) && farmTypes.ContainsKey(selectedFarm))
         {
             farmTypes[selectedFarm].TargetQuantity = targetQuantity;
             await SaveCustomFarms();
         }
         
-        // Save the app state when target quantity changes
         await SaveAppState();
     }
 }
